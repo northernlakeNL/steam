@@ -1,1 +1,1 @@
-print('Dit is een bestand')
+print('Dit is een loser')
