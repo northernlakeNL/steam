@@ -11,6 +11,7 @@ exit_key = Key.esc
 pause = True
 running = True
 
+
 def on_press(key):
     global running, pause
 
