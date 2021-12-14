@@ -25,7 +25,6 @@ def clicked():   #Gegevens ophalen functie
     game_naam = gamesbalk.get()
 #   Function place
 
-game_naam = ''
 
 root = Tk()
 root.title("Data")
@@ -40,10 +39,18 @@ gamesbutton = Button(master=root, text='Verzend gegevens', command=clicked) #But
 gamesbutton.pack(pady=3)
 
 
+
 with open('steam.json') as Steam:
     gamelist = json.load(Steam)
 
-
+for game in gamelist:
+    if game["name"] == game_naam:
+        name = game['name']
+        release_date = game['release_date']
+        price = game['price']
+        achievements = game['achievements']
+        developer = game['developer']
+        platforms = game['platforms']
     
 label1 = Label(master=root, text=name)
 label1.pack()
@@ -57,14 +64,5 @@ label5 = Label(master=root, text=developer)
 label5.pack()
 label6 = Label(master=root, text=platforms)
 label6.pack()
-
-for game in gamelist:
-    if game["name"] == game_naam:
-        name = game['name']
-        release_date = game['release_date']
-        price = game['price']
-        achievements = game['achievements']
-        developer = game['developer']
-        platforms = game['platforms']
 
 root.mainloop()
