@@ -10,8 +10,9 @@ import requests
 
 #values
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
-user_ID = '76561198084867313'
-URL = f'http://api.steampowered.com/ISteamUser/GetFriendList/v0001/?key={API_key}&steamid={user_ID}&relationship=friend'
+user_ID = '76561198172219198'
+URL = f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=730&key={API_key}&steamid={user_ID}'
+print(URL)
 
 #json bestand uitlezen
 with open('steam.json') as Steam:
