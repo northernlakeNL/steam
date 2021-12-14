@@ -1,9 +1,31 @@
-import fitbit
-import gather_keys_oauth2 as Oauth2
-import pandas as pd 
-import datetimeCLIENT_ID = '23BKFL'
-CLIENT_SECRET = '59c8a4e092284f9c318b0137991d68ae'
+#!/usr/bin/env python3
 
-server = Oauth2.OAuth2Server(CLIENT_ID, CLIENT_SECRET)
-server.browser_authorize()ACCESS_TOKEN = str(server.fitbit.client.session.token['access_token'])
-REFRESH_TOKEN = str(server.fitbit.client.session.token['refresh_token'])auth2_client = fitbit.Fitbit(CLIENT_ID, CLIENT_SECRET, oauth2=True, access_token=ACCESS_TOKEN, refresh_token=REFRESH_TOKEN)
+# Import json module
+import json
+
+# Define json data
+applicants ="""{
+  "Scott C Aldridge": "Present",
+  "Joe L Foss": "Present",
+  "Clyde M Gold": "Present",
+  "Monique C Doolittle": "Absent",
+  "David M Volkert": "Present",
+  "Israel M Oneal": "Present",
+  "Elizabeth M Groff": "Absent"
+}"""
+# Initialize a counter
+counter = 0
+# load the json data
+appList = json.loads(applicants)
+# iterate json to find the list of absent applicant
+for key in appList:
+    if (appList[key] == 'Absent'):
+  # Check the counter the print the message
+        if (counter == 0):
+            print("The following applicants are absent:")
+    print(key)
+    counter = counter + 1
+
+# Print the message if no applicant is absent
+if (counter == 0):
+  print("All applicants are present")
