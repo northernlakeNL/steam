@@ -1,4 +1,4 @@
-import tkinter as tk
+from tkinter import *
 from tkinter import ttk
 import json
 import os
@@ -9,22 +9,22 @@ import requests
 S = open('steam.json')
 gamedata = json.load(S)
 
-root = tk.Tk()
-
+root = Tk()
 root.title("Data")
-# tabControl = ttk.Notebook(root) #tabfunctie
+#   Function place
+def clicked(): #Gegevens ophalen functie
+    naam = gamesbalk.get()
+    test = Label(master=root, text=naam)
+    test.pack()
+#   Function place
 
-# tab1 = ttk.Frame(tabControl)    #frame 1
-# tab2 = ttk.Frame(tabControl)    #frame 2
+gamesbericht = Label(master=root, text="Voer hier een game in waar je de statestieken over wilt weten")
+gamesbericht.pack()
 
-# tabControl.add(tab1, text='Tab 1')
-# tabControl.add(tab2, text='Tab 2')
+gamesbalk = Entry(master=root, width=50)
+gamesbalk.pack(padx=10, pady=10)
 
-# tabControl.pack(expand=1, fill="both")
-
-# ttk.Label(tab1, text='x').grid(column=0, row=0, padx=30, pady=30)                    #Label in frame 1
-# ttk.Label(tab2, text='x').grid(column=0, row=0, padx=30, pady=30)       #Label in frame 2
-
-
+gamesbutton = Button(master=root, text='Verzend gegevens', command=clicked)
+gamesbutton.pack(pady=3)
 
 root.mainloop()
