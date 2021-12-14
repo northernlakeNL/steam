@@ -24,12 +24,12 @@ root.title('Steam Add-on Project')
 root.state('iconic')
 root.geometry('720x480')
 
-#wdigets
+#widgets
 name = Label(root, text=f'Naam:  ')
 release = Label(root, text=f'Release Date:   ')
 developer = Label(root, text=f'Developer:   ')
 
-
+#plaatsing
 name.grid(row=0, column=0, sticky='w')
 release.grid(row=1, column=0, sticky='w')
 developer.grid(row=2, column=0, sticky='w')
