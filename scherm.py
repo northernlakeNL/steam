@@ -1,5 +1,5 @@
 #alle imports die nodig zijn
-import tkinter as tk
+from tkinter import *
 from tkinter import ttk
 import json
 import os
@@ -11,17 +11,26 @@ import requests
 #Json bestand uitlezen
 with open('steam.json') as Steam:
     gamelist = json.load(Steam)
-nette_gamelist = json.dumps(gamelist, indent=4)
 
+for game in gamelist:
+    gamenaam = game['name']
+    releasedate = game['release_date']
+    
+    
 #scherm
-root = tk.Tk()
+root = Tk()
 
 root.title('Steam Add-on Project')
 root.state('iconic')
 root.geometry('720x480')
 
 #wdigets
-name = tk.Label(root, text=f'Naam:  ')
+name = Label(root, text=f'Naam:  ')
+release = Label(root, text=f'Release Date:   ')
+developer = Label(root, text=f'Developer:   ')
 
-name.grid(row=0, column=0)
+
+name.grid(row=0, column=0, sticky='w')
+release.grid(row=1, column=0, sticky='w')
+developer.grid(row=2, column=0, sticky='w')
 root.mainloop()
