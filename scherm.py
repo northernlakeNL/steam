@@ -9,33 +9,52 @@ import numpy
 import requests
 from urllib.request import urlopen
 from time import sleep
+global game_code
+global URL
 
 
+#values
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 user_ID = '76561198172219198'
 
+#json bestand uitlezen
+with open('steam.json') as Steam:
+    gamelist = json.load(Steam)
 
-scherm = Tk()
-scherm.title('Steam Add-On project')
-scherm.geometry('720x480')
+def clicked():                     #Clicked function
+    game_name = receive_game_entry.get()
+    for game in gamelist:
+        if game["name"] == game_name:
+            game_code = game['appid']
+            name = game['name']
+            release_date = game['release_date']
+            price = game['price']
+            achievements = game['achievements']
+            developer = game['developer']
+            platforms = game['platforms']
+            URL = f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={game_code}&key={API_key}&steamid={user_ID}'
+            response = urlopen(URL)
+            user_game_data = json.loads(response.read())
+            label1 = Label(master=root, text=f'game-ID: {game_code} \n game-naam:   {name} \n game-prijs:   {price} \n {URL}')
+            label1.pack()
 
-label1 = Label(scherm,
-                text= 'Game that you want')
-label1.pack()
+#scherm
+root = Tk()
+root.title('Steam Add-on Project')
+root.state('iconic')
+root.geometry('720x480')
 
-def get_data():
-    test.config(text=""+text.get(1.0, "end-1c"))
+#widgets
+text_game_label = Label(master=root, text='Voor game naam in:')
+text_game_label.pack()
 
-text = Text(scherm,width=80, height=15)
-text.insert(END, "")
-text.pack()
+receive_game_entry = Entry(master=root, width=40)
+receive_game_entry.pack(padx=5, pady=5)
 
-knop = ttk.Button(scherm,
-                text='Submit',
-                command=get_data)
-knop.pack()
+send_game_button = Button(master=root, text='Press', bg='grey', command=clicked)
+send_game_button.pack()
 
-test = Label(scherm, text="", font=18)
-test.pack()
+#URL compleet
+# URL = f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={game_code}&key={API_key}&steamid={user_ID}'
 
-scherm.mainloop()
+root.mainloop()
