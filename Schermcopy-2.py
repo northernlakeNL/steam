@@ -35,7 +35,7 @@ text_game_label.pack()
 receive_game_entry = Entry(master=root, width=40)
 receive_game_entry.pack(padx=5, pady=5)
 
-send_game_button = Button(master=root, text='Press', bg='grey', command=clicked())
+send_game_button = Button(master=root, text='Press', bg='grey', command=clicked)
 send_game_button.pack()
 
 
