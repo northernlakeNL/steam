@@ -9,22 +9,12 @@ import requests
 S = open('steam.json')
 gamedata = json.load(S)
 
-
-
-
-
-
-
-
-
-
-
-
 #   Function place
 def clicked():   #Gegevens ophalen functie
+    game_naam = 'e'
     game_naam = gamesbalk.get()
+    return game_naam
 #   Function place
-
 
 root = Tk()
 root.title("Data")
@@ -38,7 +28,9 @@ gamesbalk.pack(padx=10, pady=10)
 gamesbutton = Button(master=root, text='Verzend gegevens', command=clicked) #Button, gegevensophalen command. 
 gamesbutton.pack(pady=3)
 
+game_naam = clicked()
 
+print(game_naam)
 
 with open('steam.json') as Steam:
     gamelist = json.load(Steam)
