@@ -13,7 +13,6 @@ import webbrowser
 global game_code
 global URL
 
-
 #values
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 # user_ID = '76561198084867313'
@@ -50,7 +49,6 @@ def clicked():                     #Clicked function
             scrolling_hating = Scrollbar(root)
             scrolling_hating.pack(side= RIGHT, fill=Y)
             scrolling_hating.config(command = user_game_data_nice.yview )
-
 
 #scherm
 root = Tk()
