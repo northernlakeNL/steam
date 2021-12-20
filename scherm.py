@@ -17,14 +17,21 @@ global URL
 #values
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 # user_ID = '76561198084867313'
-
 #json bestand uitlezen
 with open('steam.json') as Steam:
     gamelist = json.load(Steam)
 
 def clicked():                     #Clicked function
     game_name = receive_game_entry.get()
-    steam_id = receive_steam_id.get()
+    Username = receive_steam_id.get()
+    URL2= f'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={API_key}&vanityurl={Username}'
+    response = urlopen(URL2)
+    user_data = json.loads(response.read())
+    if user_data["response"]["success"] == '42':
+        error_label = Label(root, text='Name not found')
+        error_label.pack()
+    else:
+        steam_id = user_data["response"]["steamid"]
     for game in gamelist:
         if game["name"] == game_name:
             game_code = game['appid']
@@ -37,12 +44,14 @@ def clicked():                     #Clicked function
             URL = f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={game_code}&key={API_key}&steamid={steam_id}'
             response = urlopen(URL)
             user_game_data = json.loads(response.read())
-            user_data_nice = json.dumps(user_game_data, indent=4, sort_keys=True)
-            label1 = Label(master=root, text=f'game-ID: {game_code} \n game-naam:   {name} \n game-prijs:   {price} \n \n Your Data: \n {user_data_nice}')
+            user_game_data_nice = json.dumps(user_game_data, indent=4, sort_keys=True)
+            label1 = Label(root, text=f'game-ID: {game_code} \n game-naam:   {name} \n game-prijs:   {price} \n \n Your Data: \n {user_game_data_nice}')
             label1.pack()
             scrolling_hating = Scrollbar(root)
             scrolling_hating.pack(side= RIGHT, fill=Y)
-            scrolling_hating.config( command = user_data_nice.yview )
+            scrolling_hating.config(command = user_game_data_nice.yview )
+
+
 #scherm
 root = Tk()
 root.title('Steam Add-on Project')
@@ -56,8 +65,8 @@ text_game_label.pack()
 receive_game_entry = Entry(root, width=40)
 receive_game_entry.pack(padx=5, pady=5)
 
-text_id_label = Label(root, text='Voor steam id naam in:')
-text_id_label.pack()
+receive_Username = Label(root, text='Voor steam naam in:')
+receive_Username.pack()
 
 receive_steam_id = Entry(root, width=50)
 receive_steam_id.pack(padx=5, pady=5)
