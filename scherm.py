@@ -5,7 +5,7 @@ import json
 import os
 import statistics
 import pandas as pd
-import numpy
+import numpy as np
 import requests
 from urllib.request import urlopen
 from time import sleep
