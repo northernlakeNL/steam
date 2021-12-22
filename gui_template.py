@@ -1,16 +1,21 @@
 import PySimpleGUI as sg
 import os.path
 import json
+from urllib.request import urlopen
 
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 
 #functies
 
-def info():
-    print('_User_')
-
-def game_info():
-    print(values[1]['_LIST_'])
+def userinfo():
+    URL1= f'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={API_key}&vanityurl={username}'
+    response = urlopen(URL1)
+    user_data = json.loads(response.read())
+    if user_data["response"]["success"] == '42':
+        sg.popup_error('User does not exist')
+    else:
+        steam_id = user_data['response']['steamid']
+        print(steam_id)
 
 with open('steam.json') as steam_data:
     data1 = json.loads(steam_data.read())
@@ -31,8 +36,9 @@ User_column = [
 
 file_list_column = [
     [
-        sg.Text('Search Game: '),
+        sg.Text('Search Game: ', size=(15,1)), 
         sg.Input(do_not_clear=True, size=(20,1),enable_events=True, key='_INPUT_'),
+
     ],
     [
         sg.Listbox(values=game_list, enable_events=True, size=(40,20), key='_LIST_')
@@ -69,10 +75,8 @@ while True:
         window.Element('_LIST_').Update(game_list)
     if event == '_LIST_' and len(values['_LIST_']):
         sg.Popup('Selected ', values['_LIST_'])
-        game_info()
-        _Username_ = str(values['_User_'])
-        print(_Username_)
+    if values['_USER_'] != '':
+        username= values['_USER_']
+        userinfo()
 
 window.close()
-
-
