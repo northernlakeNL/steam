@@ -2,6 +2,16 @@ import PySimpleGUI as sg
 import os.path
 import json
 
+API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
+
+#functies
+
+def info():
+    print('_User_')
+
+def game_info():
+    print(values[1]['_LIST_'])
+
 with open('steam.json') as steam_data:
     data1 = json.loads(steam_data.read())
 
@@ -11,16 +21,21 @@ for game in data1:
     game_list.append(data1[x]['name'])
     x +=1
 
+User_column = [
+    [
+        sg.Text('Username: '),
+        sg.Input(size=(20,1), key='_USER_'),
+        sg.Button('Search')
+    ],
+]
+
 file_list_column = [
     [
         sg.Text('Search Game: '),
         sg.Input(do_not_clear=True, size=(20,1),enable_events=True, key='_INPUT_'),
     ],
     [
-        sg.Listbox(
-            values=game_list, enable_events=True, size=(40,20),
-            key="_LIST_"
-        )
+        sg.Listbox(values=game_list, enable_events=True, size=(40,20), key='_LIST_')
     ],
 ]
 
@@ -32,6 +47,8 @@ image_viewer_column = [
 
 layout = [
     [ 
+        sg.Column(User_column),
+        sg.VSeperator(),
         sg.Column(file_list_column),
         sg.VSeparator(),
         sg.Column(image_viewer_column),
@@ -52,4 +69,10 @@ while True:
         window.Element('_LIST_').Update(game_list)
     if event == '_LIST_' and len(values['_LIST_']):
         sg.Popup('Selected ', values['_LIST_'])
+        game_info()
+        _Username_ = str(values['_User_'])
+        print(_Username_)
+
 window.close()
+
+
