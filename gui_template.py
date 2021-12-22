@@ -16,7 +16,7 @@ for game in data1:
 file_list_column = [
     [
         sg.Text(),
-        sg.In(size=(25,1), enable_events=True, key="-FOLDER-"),
+        sg.Input(size=(25,1), enable_events=True, key="-FOLDER-"),
     ],
     [
         sg.Listbox(
