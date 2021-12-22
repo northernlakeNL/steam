@@ -11,8 +11,6 @@ for game in data1:
     game_list.append(data1[x]['name'])
     x +=1
 
-# print(game_list)
-
 file_list_column = [
     [
         sg.Text('Search Game: '),
@@ -44,14 +42,14 @@ window = sg.Window("User Info", layout)
 
 while True:
     event, values = window.Read()
-    if event is None or event == 'Exit':                # always check for closed window
+    if event is None or event == 'Exit':
         break
-    if values['_INPUT_'] != '':                         # if a keystroke entered in search field
+    if values['_INPUT_'] != '':
         search = values['_INPUT_']
-        new_values = [x for x in game_list if search in x]  # do the filtering
-        window.Element('_LIST_').Update(new_values)     # display in the listbox
+        new_values = [x for x in game_list if search in x]
+        window.Element('_LIST_').Update(new_values)
     else:
-        window.Element('_LIST_').Update(game_list)          # display original unfiltered list
-    if event == '_LIST_' and len(values['_LIST_']):     # if a list item is chosen
+        window.Element('_LIST_').Update(game_list)
+    if event == '_LIST_' and len(values['_LIST_']):
         sg.Popup('Selected ', values['_LIST_'])
 window.close()
