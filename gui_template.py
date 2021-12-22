@@ -15,21 +15,21 @@ for game in data1:
 
 file_list_column = [
     [
-        sg.Text(),
-        sg.Input(size=(25,1), enable_events=True, key="-FOLDER-"),
+        sg.Text('Search Game: '),
+        sg.Input(do_not_clear=True, size=(20,1),enable_events=True, key='_INPUT_'),
     ],
     [
         sg.Listbox(
             values=game_list, enable_events=True, size=(40,20),
-            key="-FILE LIST-"
+            key="_LIST_"
         )
     ],
 ]
 
 image_viewer_column = [
     [sg.Text("Game data will be displayed here:")],
-    [sg.Text(size=(40,1), key="-TOUT-")],
-    [sg.Image(key="-IMAGE-")]
+    [sg.Text(size=(40,1), key="_TOUT_")],
+    [sg.Image(key="_IMAGE_")]
 ]
 
 layout = [
@@ -43,31 +43,15 @@ layout = [
 window = sg.Window("User Info", layout)
 
 while True:
-    event, values = window.read()
-    if event == "Exit" or event == sg.WIN_CLOSED:
+    event, values = window.Read()
+    if event is None or event == 'Exit':                # always check for closed window
         break
-    if event == "-FOLDER-":
-        folder = values["-FOLDER-"]
-        try:
-            file_list = os.listdir(folder)
-        except:
-            file_list = []
-        
-        fnames = [
-            f
-            for f in file_list
-            if os.path.isfile(os.path.join(folder, f))
-            and f.lower().endswith((".png", ".gif"))
-        ]
-        window["-FILE LIST-"].update(fnames)
-
-    elif event == "-FILE LIST-":
-        try:
-            filename = os.path.join(
-                values["-FOLDER-"], values["-FILE LIST-"][0]
-            )
-            window["-TOUT-"].update(filename)
-            window["-IMAGE-"].update(filename=filename)
-        except:
-            pass
+    if values['_INPUT_'] != '':                         # if a keystroke entered in search field
+        search = values['_INPUT_']
+        new_values = [x for x in game_list if search in x]  # do the filtering
+        window.Element('_LIST_').Update(new_values)     # display in the listbox
+    else:
+        window.Element('_LIST_').Update(game_list)          # display original unfiltered list
+    if event == '_LIST_' and len(values['_LIST_']):     # if a list item is chosen
+        sg.Popup('Selected ', values['_LIST_'])
 window.close()
