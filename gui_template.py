@@ -20,7 +20,7 @@ file_list_column = [
     ],
     [
         sg.Listbox(
-            values=[game_list], enable_events=True, size=(40,20),
+            values=game_list, enable_events=True, size=(40,20),
             key="-FILE LIST-"
         )
     ],
