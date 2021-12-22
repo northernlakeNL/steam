@@ -11,6 +11,8 @@ for game in data1:
     game_list.append(data1[x]['name'])
     x +=1
 
+# print(game_list)
+
 file_list_column = [
     [
         sg.Text(),
@@ -25,7 +27,7 @@ file_list_column = [
 ]
 
 image_viewer_column = [
-    [sg.Text("Choose an image from the list on the left:")],
+    [sg.Text("Game data will be displayed here:")],
     [sg.Text(size=(40,1), key="-TOUT-")],
     [sg.Image(key="-IMAGE-")]
 ]
@@ -38,7 +40,7 @@ layout = [
     ]
 ]
 
-window = sg.Window("Image Viewer", layout)
+window = sg.Window("User Info", layout)
 
 while True:
     event, values = window.read()
