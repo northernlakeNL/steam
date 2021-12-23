@@ -10,7 +10,7 @@ game_list = []
 
 with open('steam.json') as steam:
     list2= json.load(steam)
-    max_achievements = list2['name']['achievements']
+    # max_achievements = list2['name']['achievements']
 
 
 User_column = [
