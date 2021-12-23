@@ -2,29 +2,41 @@ import PySimpleGUI as sg
 import os.path
 import json
 from urllib.request import urlopen
+import time
 
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 
+game_list = []
 #functies
 
 def userinfo():
-    URL1= f'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={API_key}&vanityurl={username}'
-    response = urlopen(URL1)
+    global steam_id
+    global URL2
+    URL= f'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={API_key}&vanityurl={username}'
+    response = urlopen(URL)
     user_data = json.loads(response.read())
-    if user_data["response"]["success"] == '42':
-        sg.popup_error('User does not exist')
-    else:
+    if user_data["response"]["success"] == 1:
         steam_id = user_data['response']['steamid']
-        print(steam_id)
+        URL2= f"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={API_key}&steamid={steam_id}&format=json&include_appinfo=1"
+    else:
+        sg.popup_error('User does not exist')
 
-with open('steam.json') as steam_data:
-    data1 = json.loads(steam_data.read())
+def game_info():
+    global appid
+    x=0
+    response = urlopen(URL2)
+    game_list.clear()
+    game_library = json.loads(response.read())
+    for game in game_library["response"]["games"]:
+        game_list.append(game["name"])
+        appid = game["appid"]
+        x +=1
 
-game_list = []
-x = 0
-for game in data1:
-    game_list.append(data1[x]['name'])
-    x +=1
+def achievenments():
+    URL3=f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={game_id}&key={API_key}&steamid={steam_id}'
+    response = urlopen(URL3)
+    achievement_list = json.loads(response.read())
+
 
 User_column = [
     [
@@ -38,10 +50,9 @@ file_list_column = [
     [
         sg.Text('Search Game: ', size=(15,1)), 
         sg.Input(do_not_clear=True, size=(20,1),enable_events=True, key='_INPUT_'),
-
     ],
     [
-        sg.Listbox(values=game_list, enable_events=True, size=(40,20), key='_LIST_')
+        sg.Listbox(values=game_list, enable_events=True, size=(55,20), key='_LIST_')
     ],
 ]
 
@@ -61,22 +72,32 @@ layout = [
     ]
 ]
 
-window = sg.Window("User Info", layout)
-
+window = sg.Window("game info", layout)
+global last_search
+global last_list
+last_search = ""
+last_list = []
 while True:
     event, values = window.Read()
     if event is None or event == 'Exit':
         break
     if values['_INPUT_'] != '':
         search = values['_INPUT_']
-        new_values = [x for x in game_list if search in x]
-        window.Element('_LIST_').Update(new_values)
+        if search.startswith(last_search):
+            last_list = [x for x in last_list if search in x]
+        else:
+            last_list = [x for x in game_list if search in x]
+        window.Element('_LIST_').Update(last_list)
+        last_search = search
     else:
         window.Element('_LIST_').Update(game_list)
     if event == '_LIST_' and len(values['_LIST_']):
         sg.Popup('Selected ', values['_LIST_'])
+        achievenments()
     if values['_USER_'] != '':
         username= values['_USER_']
         userinfo()
+        # if len(game_list) >=1:
+        game_info()
 
 window.close()
