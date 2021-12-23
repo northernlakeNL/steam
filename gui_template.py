@@ -7,6 +7,53 @@ import time
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 
 game_list = []
+
+with open('steam.json') as steam:
+    list2= json.load(steam)
+    max_achievements = list2['name']['achievements']
+
+
+User_column = [
+    [
+        sg.Text('Username: '),
+        sg.Input(size=(20,1), key='_USER_'),
+        sg.Button('Search')
+    ],
+]
+
+file_list_column = [
+    [
+        sg.Text('Search Game: ', size=(15,1)), 
+        sg.Input(do_not_clear=True, size=(20,1),enable_events=True, key='_INPUT_'),
+    ],
+    [        sg.Listbox(values=game_list, enable_events=True, size=(55,20), key='_LIST_')
+],
+]
+
+game_data_column = [
+    [
+        sg.Text("Game data will be displayed here:")
+    ],
+    [
+        sg.Text(size=(15,1), key="_TOUT_")
+        ],
+    [
+        sg.Listbox(values=game_list, enable_events=True, size=(55,20), key='_LIST_')
+        ]
+]
+
+layout = [
+    [ 
+        sg.Column(User_column),
+        sg.VSeperator(),
+        sg.Column(file_list_column),
+        sg.VSeparator(),
+        sg.Column(game_data_column),
+    ]
+]
+
+window = sg.Window("game info", layout)
+
 #functies
 
 def userinfo():
@@ -31,48 +78,14 @@ def game_info():
         game_list.append(game["name"])
         appid = game["appid"]
         x +=1
+    window.Element('_LIST_').Update(game_list)
 
 def achievenments():
-    URL3=f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={game_id}&key={API_key}&steamid={steam_id}'
+    URL3=f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={appid}&key={API_key}&steamid={steam_id}'
     response = urlopen(URL3)
     achievement_list = json.loads(response.read())
 
 
-User_column = [
-    [
-        sg.Text('Username: '),
-        sg.Input(size=(20,1), key='_USER_'),
-        sg.Button('Search')
-    ],
-]
-
-file_list_column = [
-    [
-        sg.Text('Search Game: ', size=(15,1)), 
-        sg.Input(do_not_clear=True, size=(20,1),enable_events=True, key='_INPUT_'),
-    ],
-    [
-        sg.Listbox(values=game_list, enable_events=True, size=(55,20), key='_LIST_')
-    ],
-]
-
-image_viewer_column = [
-    [sg.Text("Game data will be displayed here:")],
-    [sg.Text(size=(40,1), key="_TOUT_")],
-    [sg.Image(key="_IMAGE_")]
-]
-
-layout = [
-    [ 
-        sg.Column(User_column),
-        sg.VSeperator(),
-        sg.Column(file_list_column),
-        sg.VSeparator(),
-        sg.Column(image_viewer_column),
-    ]
-]
-
-window = sg.Window("game info", layout)
 global last_search
 global last_list
 last_search = ""
@@ -97,7 +110,7 @@ while True:
     if values['_USER_'] != '':
         username= values['_USER_']
         userinfo()
-        # if len(game_list) >=1:
         game_info()
 
 window.close()
+
