@@ -7,6 +7,7 @@ import time
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 
 game_list = []
+game_data = []
 
 User_column = [
     [
@@ -33,7 +34,7 @@ game_data_column = [
         sg.Text(size=(15,1), key="_TOUT_")
         ],
     [
-        sg.Listbox(values=game_list, enable_events=True, size=(55,20), key='_LIST_')
+        sg.Listbox(values=game_data, enable_events=True, size=(55,20), key='_LIST_')
         ]
 ]
 
@@ -65,6 +66,7 @@ def userinfo():
 
 def game_info():
     global game_library
+    global game_name
     x=0
     response = urlopen(URL2)
     game_list.clear()
@@ -75,10 +77,6 @@ def game_info():
     window.Element('_LIST_').Update(game_list)
 
 def achievenments():
-    global appid
-    for x in game_library["response"]["games"]:
-        appid = x["appid"]
-        print(appid)
     URL3=f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={appid}&key={API_key}&steamid={steam_id}'
     URL4=f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     achieved = 0
@@ -94,6 +92,14 @@ def achievenments():
     progress = achieved / to_achieve
     percentage = progress * 100
     print(percentage)
+
+def game_id():
+    global appid
+    for game in game_library["response"]["games"]:
+        appid = game["appid"]
+        game_data.append(game["appid"])
+        print(appid)
+    window.Element('_LIST_').Update(game_data)
 
 
 global last_search
@@ -116,7 +122,7 @@ while True:
         window.Element('_LIST_').Update(game_list)
     if event == '_LIST_' and len(values['_LIST_']):
         sg.Popup('Selected ', values['_LIST_'])
-        achievenments()
+        game_id()
     if values['_USER_'] != '':
         username= values['_USER_']
         userinfo()
