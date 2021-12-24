@@ -93,12 +93,15 @@ def achievenments():
     percentage = progress * 100
     print(percentage)
 
-def game_id():
+def game_id(name):
     global appid
-    for game in game_library["response"]["games"]:
-        appid = game["appid"]
-        game_data.append(game["appid"])
-        print(appid)
+    for game in game_list:
+        if name == game:
+            print(name)
+            temp = game_library["response"]["games"]
+            print(temp)
+            appid= temp["appid"]
+            print(appid)
     window.Element('_LIST_').Update(game_data)
 
 
@@ -120,9 +123,10 @@ while True:
         last_search = search
     else:
         window.Element('_LIST_').Update(game_list)
-    if event == '_LIST_' and len(values['_LIST_']):
-        sg.Popup('Selected ', values['_LIST_'])
-        game_id()
+    if event == '_LIST_':
+        print(values)
+        app_name = values['_LIST_']
+        game_id(app_name)
     if values['_USER_'] != '':
         username= values['_USER_']
         userinfo()
