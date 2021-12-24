@@ -70,20 +70,34 @@ def userinfo():
 
 def game_info():
     global appid
+    global game_library
     x=0
     response = urlopen(URL2)
     game_list.clear()
     game_library = json.loads(response.read())
     for game in game_library["response"]["games"]:
         game_list.append(game["name"])
-        appid = game["appid"]
+        # appid = game["appid"]
         x +=1
     window.Element('_LIST_').Update(game_list)
 
 def achievenments():
+    appid = game_library["response"]["games"]["appid"]
     URL3=f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={appid}&key={API_key}&steamid={steam_id}'
+    URL4=f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
+    achieved = 0
+    to_achieve = 0
     response = urlopen(URL3)
-    achievement_list = json.loads(response.read())
+    achievement_temp = json.loads(response.read())
+    for x in achievement_temp['playerstats']['achievements']:
+        achieved +=1
+    response2 = urlopen(URL4)
+    achievement_all = json.loads(response2.read())
+    for x in achievement_all['achievementpercentages']['achievements']:
+        to_achieve +=1
+    progress = achieved / to_achieve
+    percentage = progress * 100
+    
 
 
 global last_search
@@ -97,9 +111,9 @@ while True:
     if values['_INPUT_'] != '':
         search = values['_INPUT_']
         if search.startswith(last_search):
-            last_list = [x for x in last_list if search in x]
+            last_list = [x for x in last_list if last_search in x]
         else:
-            last_list = [x for x in game_list if search in x]
+            last_list = [x for x in game_list if last_search in x]
         window.Element('_LIST_').Update(last_list)
         last_search = search
     else:
