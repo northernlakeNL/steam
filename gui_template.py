@@ -71,7 +71,6 @@ def game_info():
     game_library = json.loads(response.read())
     for game in game_library["response"]["games"]:
         game_list.append(game["name"])
-        # appid = game["appid"]
         x +=1
     window.Element('_LIST_').Update(game_list)
 
@@ -124,4 +123,3 @@ while True:
         game_info()
 
 window.close()
-
