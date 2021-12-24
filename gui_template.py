@@ -97,7 +97,7 @@ def achievenments():
         to_achieve +=1
     progress = achieved / to_achieve
     percentage = progress * 100
-    
+    print(percentage)
 
 
 global last_search
