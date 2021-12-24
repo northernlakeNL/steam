@@ -8,11 +8,6 @@ API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 
 game_list = []
 
-with open('steam.json') as steam:
-    list2= json.load(steam)
-    # max_achievements = list2['name']['achievements']
-
-
 User_column = [
     [
         sg.Text('Username: '),
@@ -69,7 +64,6 @@ def userinfo():
         sg.popup_error('User does not exist')
 
 def game_info():
-    global appid
     global game_library
     x=0
     response = urlopen(URL2)
@@ -82,7 +76,10 @@ def game_info():
     window.Element('_LIST_').Update(game_list)
 
 def achievenments():
-    appid = game_library["response"]["games"]["appid"]
+    global appid
+    for x in game_library["response"]["games"]:
+        appid = x["appid"]
+        print(appid)
     URL3=f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={appid}&key={API_key}&steamid={steam_id}'
     URL4=f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     achieved = 0
