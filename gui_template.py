@@ -52,7 +52,7 @@ window = sg.Window("game info", layout)
 
 #functies
 
-def userinfo():
+def userinfo(username):
     global steam_id
     global URL2
     URL= f'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={API_key}&vanityurl={username}'
@@ -94,7 +94,6 @@ def achievenments():
     print(percentage)
 
 def game_id(name):
-    global appid
     for game in game_list:
         if name == game:
             print(name)
@@ -102,6 +101,7 @@ def game_id(name):
             print(temp)
             appid= temp["appid"]
             print(appid)
+            print('kaas')
     window.Element('_LIST_').Update(game_data)
 
 
@@ -126,10 +126,13 @@ while True:
     if event == '_LIST_':
         print(values)
         app_name = values['_LIST_']
+        game_name = str(app_name)
+        del(game_name[0,1])
+        print(game_name)
         game_id(app_name)
     if values['_USER_'] != '':
         username= values['_USER_']
-        userinfo()
+        userinfo(username)
         game_info()
 
 window.close()
