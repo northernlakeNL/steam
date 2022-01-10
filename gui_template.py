@@ -5,7 +5,6 @@ from urllib.request import urlopen
 import time
 
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
-
 game_list = []
 game_data = []
 
@@ -76,7 +75,7 @@ def game_info():
         x +=1
     window.Element('_LIST_').Update(game_list)
 
-def achievenments():
+def achievenments(appid):
     URL3=f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={appid}&key={API_key}&steamid={steam_id}'
     URL4=f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     achieved = 0
@@ -94,13 +93,13 @@ def achievenments():
     print(percentage)
 
 def game_id(name):
+    print(game_list)
     for game in game_list:
         if name == game:
             print(name)
-            temp = game_library["response"]["games"]
-            print(temp)
-            appid= temp["appid"]
-            print(appid)
+            print("in list")
+            appid = game_library["response"]["games"][]
+            # print(appid)
             print('kaas')
     window.Element('_LIST_').Update(game_data)
 
@@ -124,12 +123,9 @@ while True:
     else:
         window.Element('_LIST_').Update(game_list)
     if event == '_LIST_':
-        print(values)
         app_name = values['_LIST_']
-        game_name = str(app_name)
-        del(game_name[0,1])
-        print(game_name)
-        game_id(app_name)
+        game_name = str(app_name[0])
+        game_id(game_name)
     if values['_USER_'] != '':
         username= values['_USER_']
         userinfo(username)

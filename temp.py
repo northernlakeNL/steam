@@ -81,10 +81,6 @@
 # # gamedata.pack(side=LEFT)
 # root.mainloop()
 
-
-
-
-
 import PySimpleGUI as sg
 
 sg.theme('DarkAmber')   # Add a touch of color
