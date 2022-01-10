@@ -75,7 +75,7 @@ def game_info():
         x +=1
     window.Element('_LIST_').Update(game_list)
 
-def achievenments(appid):
+def achievements(appid):
     URL3=f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={appid}&key={API_key}&steamid={steam_id}'
     URL4=f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     achieved = 0
@@ -91,16 +91,16 @@ def achievenments(appid):
     progress = achieved / to_achieve
     percentage = progress * 100
     print(percentage)
-
-def game_id(name):
-    for game in game_list:
-        if name == game:
-            print(name)
-            if name == game_list["response"]["games"]["name"]:
-                app_id = game_list["response"]["games"]["appid"]
-                print(app_id)
     window.Element('_LIST_').Update(game_data)
 
+def game_id(name):
+    response = urlopen(URL2)
+    library = json.loads(response.read())
+    for game in library['response']['games']:
+        if name == game['name']:
+            print(game['name'])
+            app_id = game["appid"]
+            achievements(app_id)
 
 global last_search
 global last_list
@@ -124,6 +124,7 @@ while True:
         app_name = values['_LIST_']
         game_name = str(app_name[0])
         game_id(game_name)
+        window.Element('_LIST_').Update(game_data_column)
     if values['_USER_'] != '':
         username= values['_USER_']
         userinfo(username)
