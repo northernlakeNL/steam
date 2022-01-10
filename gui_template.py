@@ -93,14 +93,12 @@ def achievenments(appid):
     print(percentage)
 
 def game_id(name):
-    print(game_list)
     for game in game_list:
         if name == game:
             print(name)
-            print("in list")
-            appid = game_library["response"]["games"][]
-            # print(appid)
-            print('kaas')
+            if name == game_list["response"]["games"]["name"]:
+                app_id = game_list["response"]["games"]["appid"]
+                print(app_id)
     window.Element('_LIST_').Update(game_data)
 
 
