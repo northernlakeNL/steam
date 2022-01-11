@@ -3,6 +3,7 @@ import os.path
 import json
 from urllib.request import urlopen
 import time
+import requests
 
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 game_list = []
@@ -10,8 +11,8 @@ game_list.clear
 game_data = []
 game_data.clear
 
-# check link http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=AF90EFF02499BB3CDDFFF28629DEA47B&steamid=76561198084867313&format=json&include_appinfo=1
-
+# http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=240&key=AF90EFF02499BB3CDDFFF28629DEA47B&steamid=76561198084867313
+    
 User_column = [
     [
         sg.Text('Username: '),
@@ -59,8 +60,8 @@ def userinfo(username):
     global steam_id
     global URL2
     URL= f'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={API_key}&vanityurl={username}'
-    response = urlopen(URL)
-    user_data = json.loads(response.read())
+    response1 = urlopen(URL)
+    user_data = json.loads(response1.read())
     if user_data["response"]["success"] == 1:
         steam_id = user_data['response']['steamid']
         URL2= f"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={API_key}&steamid={steam_id}&format=json&include_appinfo=1"
@@ -71,9 +72,9 @@ def game_info():
     global game_library
     global game_name
     x=0
-    response = urlopen(URL2)
+    response5 = urlopen(URL2)
     game_list.clear()
-    game_library = json.loads(response.read())
+    game_library = json.loads(response5.read())
     for game in game_library["response"]["games"]:
         if game["playtime_forever"] != 0:
             game_list.append(game["name"])
@@ -85,34 +86,51 @@ def achievements(appid):
     URL4=f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     achieved = 0
     to_achieve = 0
-    response = urlopen(URL3)
-    achievement_temp = json.loads(response.read())
-    if achievement_temp:
-        for x in achievement_temp['playerstats']['achievements']:
-            achieved +=1
-        response2 = urlopen(URL4)
-        achievement_all = json.loads(response2.read())
-        for x in achievement_all['achievementpercentages']['achievements']:
-            to_achieve +=1
-            progress = achieved / to_achieve
-            percentage = progress * 100
+    r = requests.get(URL3)
+    response3 = r.status_code
+    try:
+        if response3 == 200:
+            window.Element('_DATA_').Update('')
+            achievement_user = r.json() 
+            if achievement_user['playerstats']['achievements']:
+                for x in achievement_user['playerstats']['achievements']:
+                    achieved +=1
+                response4 = requests.get(URL4)
+                achievement_all = response4.json()
+            for x in achievement_all['achievementpercentages']['achievements']:
+                to_achieve +=1
+                progress = achieved / to_achieve
+                percentage = progress * 100
+                game_data.clear()
+                game_data.append(game_name)
+                game_data.append(percentage)
+                window.Element('_DATA_').Update(game_data)
+        if response3 == 400:
+            window.Element('_DATA_').Update('')
+            NA = "Not Available"
             game_data.clear()
-            game_data.append(achievement_temp['playerstats']['gameName'])
-            game_data.append(percentage)
-            print(game_data)
+            game_data.append(game_name)
+            game_data.append(NA)
             window.Element('_DATA_').Update(game_data)
-    elif not response:
+    except KeyError:
+        window.Element('_DATA_').Update('')
         NA = "Not Available"
+        game_data.clear()
+        game_data.append(game_name)
         game_data.append(NA)
         window.Element('_DATA_').Update(game_data)
 
 def game_id(name):
-    response = urlopen(URL2)
-    library = json.loads(response.read())
+    global game_name
+    global response2
+    response2 = requests.get(URL2)
+    library = response2.json()
     for game in library['response']['games']:
         if name == game['name']:
-            game_data.append(game['name'])
+            game_name = game['name'] 
+            game_data.append(game_name)
             app_id = game["appid"]
+            print(app_id)               #WEG HALEN ALS ALLES WERKT
             achievements(app_id)
 
 global last_search
