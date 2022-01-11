@@ -6,7 +6,11 @@ import time
 
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 game_list = []
+game_list.clear
 game_data = []
+game_data.clear
+
+# check link http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key=AF90EFF02499BB3CDDFFF28629DEA47B&steamid=76561198084867313&format=json&include_appinfo=1
 
 User_column = [
     [
@@ -33,7 +37,7 @@ game_data_column = [
         sg.Text(size=(15,1), key="_TOUT_")
         ],
     [
-        sg.Listbox(values=game_data, enable_events=True, size=(55,20), key='_LIST_')
+        sg.Listbox(values=game_data, enable_events=True, size=(55,20), key='_DATA_')
         ]
 ]
 
@@ -71,8 +75,9 @@ def game_info():
     game_list.clear()
     game_library = json.loads(response.read())
     for game in game_library["response"]["games"]:
-        game_list.append(game["name"])
-        x +=1
+        if game["playtime_forever"] != 0:
+            game_list.append(game["name"])
+            x +=1
     window.Element('_LIST_').Update(game_list)
 
 def achievements(appid):
@@ -82,23 +87,31 @@ def achievements(appid):
     to_achieve = 0
     response = urlopen(URL3)
     achievement_temp = json.loads(response.read())
-    for x in achievement_temp['playerstats']['achievements']:
-        achieved +=1
-    response2 = urlopen(URL4)
-    achievement_all = json.loads(response2.read())
-    for x in achievement_all['achievementpercentages']['achievements']:
-        to_achieve +=1
-    progress = achieved / to_achieve
-    percentage = progress * 100
-    print(percentage)
-    window.Element('_LIST_').Update(game_data)
+    if achievement_temp:
+        for x in achievement_temp['playerstats']['achievements']:
+            achieved +=1
+        response2 = urlopen(URL4)
+        achievement_all = json.loads(response2.read())
+        for x in achievement_all['achievementpercentages']['achievements']:
+            to_achieve +=1
+            progress = achieved / to_achieve
+            percentage = progress * 100
+            game_data.clear()
+            game_data.append(achievement_temp['playerstats']['gameName'])
+            game_data.append(percentage)
+            print(game_data)
+            window.Element('_DATA_').Update(game_data)
+    elif not response:
+        NA = "Not Available"
+        game_data.append(NA)
+        window.Element('_DATA_').Update(game_data)
 
 def game_id(name):
     response = urlopen(URL2)
     library = json.loads(response.read())
     for game in library['response']['games']:
         if name == game['name']:
-            print(game['name'])
+            game_data.append(game['name'])
             app_id = game["appid"]
             achievements(app_id)
 
@@ -124,7 +137,7 @@ while True:
         app_name = values['_LIST_']
         game_name = str(app_name[0])
         game_id(game_name)
-        window.Element('_LIST_').Update(game_data_column)
+        window.Element('_DATA_').Update(game_data)
     if values['_USER_'] != '':
         username= values['_USER_']
         userinfo(username)
