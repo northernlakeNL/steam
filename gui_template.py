@@ -82,6 +82,9 @@ def game_info():
     window.Element('_LIST_').Update(game_list)
 
 def achievements(appid):
+    global URL3
+    global URL4
+    global game_data
     URL3=f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={appid}&key={API_key}&steamid={steam_id}'
     URL4=f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     achieved = 0
@@ -105,6 +108,8 @@ def achievements(appid):
                 game_data.append(game_name)
                 game_data.append(percentage)
                 window.Element('_DATA_').Update(game_data)
+                if achievement_user['playerstats']['stats']:
+                    KDA()
         if response3 == 400:
             window.Element('_DATA_').Update('')
             NA = "Not Available"
@@ -119,6 +124,20 @@ def achievements(appid):
         game_data.append(game_name)
         game_data.append(NA)
         window.Element('_DATA_').Update(game_data)
+
+def KDA():
+    r = requests.get(URL3)
+    print('KDA')
+    response4 = r.status_code
+    if response4 == 200:
+        achievement_user = r.json() 
+        if achievement_user['playerstats']['stats']:
+            k = achievement_user['playserstats']['stats']
+            print(type(k))
+            deaths = achievement_user['playserstats']['stats']['total_deaths']
+            kd = kills / deaths
+            game_data.append(kd)
+            window.Element('_DATA_').Update(game_data) 
 
 def game_id(name):
     global game_name
