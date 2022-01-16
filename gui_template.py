@@ -3,6 +3,7 @@ import os.path
 import json
 from urllib.request import urlopen
 import time
+from PySimpleGUI.PySimpleGUI import ProgressBar
 import requests
 
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
@@ -100,7 +101,9 @@ def achievements(appid):
             for x in achievement_all['achievementpercentages']['achievements']:
                 to_achieve +=1
                 progress = achieved / to_achieve
-                percentage = progress * 100
+                p = progress * 100
+                percentage = round(p, 2)
+                ProgressBar(100,percentage)
                 game_data.clear()
                 game_data.append(game_name)
                 game_data.append(percentage)
@@ -130,8 +133,14 @@ def game_id(name):
             game_name = game['name'] 
             game_data.append(game_name)
             app_id = game["appid"]
-            print(app_id)               #WEG HALEN ALS ALLES WERKT
             achievements(app_id)
+            play_time(game_name)
+
+def play_time(name):
+    library = response2.json()
+    for game in library['response']['games']:
+        if game == name:
+            
 
 global last_search
 global last_list
