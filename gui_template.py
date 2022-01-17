@@ -61,20 +61,20 @@ window = sg.Window("game info", layout,size=(1280,720))
 
 def userinfo(username):         # User info krijgen uit de steam API
     global steam_id
-    global URL2
     URL= f'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={API_key}&vanityurl={username}'
     response1 = urlopen(URL)
     user_data = json.loads(response1.read())
     if user_data["response"]["success"] == 1:
         steam_id = user_data['response']['steamid']
-        URL2= f"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={API_key}&steamid={steam_id}&format=json&include_appinfo=1"
     else:
         sg.popup_error('User does not exist')
 
 def game_info():            # Alles games van de User verzamelen en in een lijst stoppen
     global game_library
     global game_name
+    global URL2
     x=0
+    URL2= f"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={API_key}&steamid={steam_id}&format=json&include_appinfo=1"
     response5 = urlopen(URL2)
     game_list.clear()
     game_library = json.loads(response5.read())
@@ -156,24 +156,24 @@ while True:
     event, values = window.Read()
     if event is None or event == 'Exit':
         break
-    if values['_INPUT_'] != '':
-        search = values['_INPUT_']
-        if search.startswith(last_search):
-            last_list = [x for x in last_list if last_search in x]
-        else:
-            last_list = [x for x in game_list if last_search in x]
-        window.Element('_LIST_').Update(last_list)
-        last_search = search
-    else:
-        window.Element('_LIST_').Update(game_list)
-        if event == '_LIST_':
-            app_name = values['_LIST_']
-            game_name = str(app_name[0])
-            game_id(game_name)
-        window.Element('_DATA_').Update(game_data)
     if values['_USER_'] != '':
         username= values['_USER_']
         userinfo(username)
         game_info()
+    if values['_INPUT_'] != '':
+        search = values['_INPUT_']
+        if search.startswith(last_search):
+            last_list = [x for x in game_list if last_search in x]
+        else:
+            last_list = [x for x in game_list if last_search in x]
+        last_search = search
+        print(last_list)
+        window.Element('_LIST_').update(last_list)  
+    if event == '_LIST_':
+        app_name = values['_LIST_']
+        game_name = str(app_name[0])
+        game_id(game_name)
+        window.Element('_DATA_').Update(game_data)
+
 
 window.close()
