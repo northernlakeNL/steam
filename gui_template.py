@@ -12,6 +12,7 @@ game_list.clear
 game_data = []
 game_data.clear
 tempo = []
+percentage = 0
 
 # http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=240&key=AF90EFF02499BB3CDDFFF28629DEA47B&steamid=76561198084867313
     
@@ -32,13 +33,12 @@ file_list_column = [
 game_data_column = [
     [sg.vtop(sg.Text("Game data will be displayed here:"),
         sg.Text(size=(15,1), key="_TOUT_"))],
-    [sg.vtop(sg.Listbox(values=game_data, enable_events=True, size=(55,20), key='_DATA_'))]
-    # [sg.Graph()]
+    [sg.vtop(sg.Listbox(values=game_data, enable_events=True, size=(55,20), key='_DATA_'))],
+    [sg.ProgressBar(100, orientation='h', size=(35,20), key='_DATA_')],
+    [sg.vbottom(sg.Listbox(values=tempo, enable_events=True, size=(55,15),  key='_GRAPH_'))]
 ]
 
-temp = [
-    [sg.vbottom(sg.Listbox(values=tempo, enable_events=True, size=(55,20),  key='_GRAPH_'))]
-]
+
 
 layout = [
     [ sg.Column(User_column),
@@ -46,8 +46,6 @@ layout = [
         sg.Column(file_list_column),
         sg.VSeparator(),
         sg.Column(game_data_column),
-        sg.HSeparator(),
-        sg.Column(temp)
 ]]
 
 window = sg.Window("game info", layout,size=(1280,720))
@@ -102,13 +100,14 @@ def achievements(appid):    # Behaalde achievement percentage van de aangeklikte
                 response4 = requests.get(URL4)
                 achievement_all = response4.json()
             for x in achievement_all['achievementpercentages']['achievements']:
+                # temp
                 to_achieve +=1
                 progress = achieved / to_achieve
                 p = progress * 100
-                percentage = f'Behaald: {round(p, 2)}%'
+                percentage = round(p, 2)
                 game_data.clear()
                 game_data.append(game_name)
-                game_data.append(percentage)
+                ProgressBar.UpdateBar(percentage, 100)
                 window.Element('_DATA_').Update(game_data)
         if response3 == 400:
             window.Element('_DATA_').Update('')
@@ -123,6 +122,7 @@ def achievements(appid):    # Behaalde achievement percentage van de aangeklikte
         game_data.clear()
         game_data.append(game_name)
         game_data.append(NA)
+
         window.Element('_DATA_').Update(game_data)
 
 def game_id(name):
@@ -171,6 +171,4 @@ while True:
         game_name = str(app_name[0])
         game_id(game_name)
         window.Element('_DATA_').Update(game_data)
-        window.Element('_GRAPH_').Update(tempo)
-
 window.close()
