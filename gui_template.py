@@ -14,10 +14,12 @@ game_data.clear
 
 # http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=240&key=AF90EFF02499BB3CDDFFF28629DEA47B&steamid=76561198084867313
     
+# Het scherm
+
 User_column = [
     [
         sg.Text('Username: '),
-        sg.Input(size=(20,1), key='_USER_'),
+        sg.Input(size=(25,20), key='_USER_'),
         sg.Button('Search')
     ],
 ]
@@ -27,7 +29,7 @@ file_list_column = [
         sg.Text('Search Game: ', size=(15,1)), 
         sg.Input(do_not_clear=True, size=(20,1),enable_events=True, key='_INPUT_'),
     ],
-    [        sg.Listbox(values=game_list, enable_events=True, size=(55,20), key='_LIST_')
+    [        sg.Listbox(values=game_list, enable_events=True, size=(55,40), key='_LIST_')
 ],
 ]
 
@@ -39,7 +41,7 @@ game_data_column = [
         sg.Text(size=(15,1), key="_TOUT_")
         ],
     [
-        sg.Listbox(values=game_data, enable_events=True, size=(55,20), key='_DATA_')
+        sg.Listbox(values=game_data, enable_events=True, size=(55,40), key='_DATA_')
         ]
 ]
 
@@ -53,11 +55,11 @@ layout = [
     ]
 ]
 
-window = sg.Window("game info", layout)
+window = sg.Window("game info", layout,size=(1280,720))
 
 #functies
 
-def userinfo(username):
+def userinfo(username):         # User info krijgen uit de steam API
     global steam_id
     global URL2
     URL= f'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={API_key}&vanityurl={username}'
@@ -69,7 +71,7 @@ def userinfo(username):
     else:
         sg.popup_error('User does not exist')
 
-def game_info():
+def game_info():            # Alles games van de User verzamelen en in een lijst stoppen
     global game_library
     global game_name
     x=0
@@ -80,12 +82,15 @@ def game_info():
         if game["playtime_forever"] != 0:
             game_list.append(game["name"])
             x +=1
+    game_list.sort()
     window.Element('_LIST_').Update(game_list)
 
-def achievements(appid):
+def achievements(appid):    # Behaalde achievement percentage van de aangeklikte game verzamalen 
+    global percentage
     global URL3
     global URL4
     global game_data
+    global percentage
     URL3=f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={appid}&key={API_key}&steamid={steam_id}'
     URL4=f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     achieved = 0
@@ -106,13 +111,10 @@ def achievements(appid):
                 progress = achieved / to_achieve
                 p = progress * 100
                 percentage = round(p, 2)
-                ProgressBar(100,percentage)
                 game_data.clear()
                 game_data.append(game_name)
                 game_data.append(percentage)
                 window.Element('_DATA_').Update(game_data)
-                if achievement_user['playerstats']['stats']:
-                    KDA()
         if response3 == 400:
             window.Element('_DATA_').Update('')
             NA = "Not Available"
@@ -128,20 +130,6 @@ def achievements(appid):
         game_data.append(NA)
         window.Element('_DATA_').Update(game_data)
 
-def KDA():
-    r = requests.get(URL3)
-    print('KDA')
-    response4 = r.status_code
-    if response4 == 200:
-        achievement_user = r.json() 
-        if achievement_user['playerstats']['stats']:
-            k = achievement_user['playserstats']['stats']
-            print(type(k))
-            deaths = achievement_user['playserstats']['stats']['total_deaths']
-            kd = kills / deaths
-            game_data.append(kd)
-            window.Element('_DATA_').Update(game_data) 
-
 def game_id(name):
     global game_name
     global response2
@@ -153,14 +141,13 @@ def game_id(name):
             game_data.append(game_name)
             app_id = game["appid"]
             achievements(app_id)
-            play_time(game_name)
+        play_time(game_name)
 
 def play_time(name):
     library = response2.json()
-    for game in library['response']['games']:
-        if game == name:
+    # for game in library['response']['games']:
+    #     if game == name:
             
-
 global last_search
 global last_list
 last_search = ""
@@ -179,10 +166,10 @@ while True:
         last_search = search
     else:
         window.Element('_LIST_').Update(game_list)
-    if event == '_LIST_':
-        app_name = values['_LIST_']
-        game_name = str(app_name[0])
-        game_id(game_name)
+        if event == '_LIST_':
+            app_name = values['_LIST_']
+            game_name = str(app_name[0])
+            game_id(game_name)
         window.Element('_DATA_').Update(game_data)
     if values['_USER_'] != '':
         username= values['_USER_']
