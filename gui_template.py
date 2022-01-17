@@ -11,6 +11,7 @@ game_list = []
 game_list.clear
 game_data = []
 game_data.clear
+tempo = []
 
 # http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=240&key=AF90EFF02499BB3CDDFFF28629DEA47B&steamid=76561198084867313
     
@@ -32,7 +33,11 @@ game_data_column = [
     [sg.vtop(sg.Text("Game data will be displayed here:"),
         sg.Text(size=(15,1), key="_TOUT_"))],
     [sg.vtop(sg.Listbox(values=game_data, enable_events=True, size=(55,20), key='_DATA_'))]
-    [sg.graph()]
+    # [sg.Graph()]
+]
+
+temp = [
+    [sg.vbottom(sg.Listbox(values=tempo, enable_events=True, size=(55,20),  key='_GRAPH_'))]
 ]
 
 layout = [
@@ -41,7 +46,9 @@ layout = [
         sg.Column(file_list_column),
         sg.VSeparator(),
         sg.Column(game_data_column),
-]
+        sg.HSeparator(),
+        sg.Column(temp)
+]]
 
 window = sg.Window("game info", layout,size=(1280,720))
 
@@ -98,7 +105,7 @@ def achievements(appid):    # Behaalde achievement percentage van de aangeklikte
                 to_achieve +=1
                 progress = achieved / to_achieve
                 p = progress * 100
-                percentage = round(p, 2)
+                percentage = f'Behaald: {round(p, 2)}%'
                 game_data.clear()
                 game_data.append(game_name)
                 game_data.append(percentage)
@@ -125,7 +132,8 @@ def game_id(name):
     library = response2.json()
     for game in library['response']['games']:
         if name == game['name']:
-            game_name = game['name'] 
+            spel = game['name']
+            game_name = f'game:     {spel}'
             game_data.append(game_name)
             app_id = game["appid"]
             achievements(app_id)
@@ -163,5 +171,6 @@ while True:
         game_name = str(app_name[0])
         game_id(game_name)
         window.Element('_DATA_').Update(game_data)
+        window.Element('_GRAPH_').Update(tempo)
 
 window.close()
