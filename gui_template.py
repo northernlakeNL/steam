@@ -32,10 +32,7 @@ game_data_column = [
     [sg.vtop(sg.Text("Game data will be displayed here:"),
         sg.Text(size=(15,1), key="_TOUT_"))],
     [sg.vtop(sg.Listbox(values=game_data, enable_events=True, size=(55,20), key='_DATA_'))]
-]
-
-graph_column = [
-    [sg.Listbox(values=game_data, enable_events=True, size=(55,20), key='_GRAPH_')]
+    [sg.graph()]
 ]
 
 layout = [
@@ -44,7 +41,6 @@ layout = [
         sg.Column(file_list_column),
         sg.VSeparator(),
         sg.Column(game_data_column),
-        sg.Column(graph_column)]
 ]
 
 window = sg.Window("game info", layout,size=(1280,720))
@@ -139,10 +135,7 @@ def play_time(name):
     library = response2.json()
     # for game in library['response']['games']:
     #     if game == name:
-            
-def graph():
-    global graphs
-    graphs = ['graph1', 'graph2', 'graph3']
+
 
 global last_search
 global last_list
@@ -169,8 +162,6 @@ while True:
         app_name = values['_LIST_']
         game_name = str(app_name[0])
         game_id(game_name)
-        graph()
         window.Element('_DATA_').Update(game_data)
-        window.Element('_GRAPH_').Update(graphs)
 
 window.close()
