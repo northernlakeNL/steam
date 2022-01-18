@@ -5,6 +5,7 @@ from urllib.request import urlopen
 import time
 from PySimpleGUI.PySimpleGUI import ProgressBar
 import requests
+import math
 
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 game_list = []
@@ -19,7 +20,7 @@ gen_list = []
     
 # Het scherm
 
-User_column = [
+User_column = [                                             # De eerste Colom waar de gebruikersnaam kan worden ingevuld en de algemen data komt
     [   sg.vtop(sg.Text('Username: ')),
         sg.vtop(sg.Input(size=(25,20), key='_USER_')),
         sg.vtop(sg.Button('Search')),
@@ -27,13 +28,13 @@ User_column = [
     [sg.Listbox(values=gen_list, enable_events=True, size=(55,20), key='_GENERAL_')]
 ]
 
-file_list_column = [
+file_list_column = [                                        # De gebruikers bibliotheek weergeven met een zoek functie
     [sg.Text('Search Game: ', size=(10,1)), 
         sg.Input(do_not_clear=True, size=(30,1),enable_events=True, key='_INPUT_'),],
     [sg.Listbox(values=game_list, enable_events=True, size=(55,40), key='_LIST_')],
 ]
 
-game_data_column = [
+game_data_column = [                                        # Alle game data van de aangeklikte game weergeven
     [sg.vtop(sg.Text("Game data will be displayed here:"),
         sg.Text(size=(15,1), key="_TOUT_"))],
     [sg.vtop(sg.Listbox(values=game_data, enable_events=True, size=(55,20), key='_DATA_'))],
@@ -41,7 +42,7 @@ game_data_column = [
     [sg.vbottom(sg.Listbox(values=tempo, enable_events=True, size=(55,20),  key='_GRAPH_'))]
 ]
 
-layout = [
+layout = [                                                  # volgorde van de layout van links naar rechts
     [ sg.Column(User_column),
         sg.VSeperator(),
         sg.Column(file_list_column),
@@ -49,7 +50,7 @@ layout = [
         sg.Column(game_data_column),
 ]]
 
-window = sg.Window("game info", layout,size=(1280,720))
+window = sg.Window("game info", layout,size=(1280,720))     
 
 #functies
 
@@ -66,21 +67,35 @@ def userinfo(username):         # User info krijgen uit de steam API
 
 def gen_data():
     global gen_list
+    time_list = []
     x = 0
     URL2= f"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={API_key}&steamid={steam_id}&format=json&include_appinfo=1"
     response5 = urlopen(URL2)
     game_library = json.loads(response5.read())
     for game in game_library["response"]["games"]:
         if game["playtime_forever"] != 0:
-            gen_list.append(f'{game["name"]}:{game["playtime_forever"]}')
-            x +=1
-    gen_list.sort()
+            time_list.append(game["playtime_forever"])
+            time_list.sort()
+    for x in range(len(time_list)-10, len(time_list)):
+        for game in game_library["response"]["games"]:
+            if time_list[x] == game["playtime_forever"]:
+                if game["playtime_forever"] >= 60:
+                    hours = math.floor(game["playtime_forever"] / 60)
+                    minutes = round(((game["playtime_forever"] / 60) - hours) * 60)
+                    if minutes < 10:
+                        minutes = f'0{minutes}'
+                    play_time = f'{hours}:{minutes}'
+                else:
+                    play_time == game["playtime_forever"]
+                gen_list.append(f'{game["name"]}, {play_time}')
+                
     window.Element('_GENERAL_').Update(gen_list)
 
 def game_info():            # Alles games van de User verzamelen en in een lijst stoppen
     global game_library
     global game_name
     global URL2
+    global playtime
     x=0
     URL2= f"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={API_key}&steamid={steam_id}&format=json&include_appinfo=1"
     response5 = urlopen(URL2)
@@ -89,6 +104,14 @@ def game_info():            # Alles games van de User verzamelen en in een lijst
     for game in game_library["response"]["games"]:
         if game["playtime_forever"] != 0:
             game_list.append(game["name"])
+            if game["playtime_forever"] >= 60:
+                    hours = math.floor(game["playtime_forever"] / 60)
+                    minutes = round(((game["playtime_forever"] / 60) - hours) * 60)
+                    if minutes < 10:
+                        minutes = f'0{minutes}'
+                    playtime = f'playtime:  {hours}h:{minutes}m'
+            else:
+                playtime = f'{game["playtime_forever"]}m'
             x +=1
     game_list.sort()
     window.Element('_LIST_').Update(game_list)
@@ -115,14 +138,13 @@ def achievements(appid):    # Behaalde achievement percentage van de aangeklikte
                 response4 = requests.get(URL4)
                 achievement_all = response4.json()
             for x in achievement_all['achievementpercentages']['achievements']:
-                # temp
                 to_achieve +=1
                 progress = achieved / to_achieve
                 p = progress * 100
                 percentage = round(p, 2)
                 game_data.clear()
                 game_data.append(game_name)
-                # ProgressBar.UpdateBar(percentage, 100)
+                game_data.append(playtime)
                 window.Element('_DATA_').Update(game_data)
         if response3 == 400:
             window.Element('_DATA_').Update('')
@@ -147,17 +169,10 @@ def game_id(name):
     for game in library['response']['games']:
         if name == game['name']:
             spel = game['name']
-            game_name = f'game:     {spel}'
+            game_name = f'game:         {spel}'
             game_data.append(game_name)
             app_id = game["appid"]
             achievements(app_id)
-        play_time(game_name)
-
-def play_time(name):
-    library = response2.json()
-    # for game in library['response']['games']:
-    #     if game == name:
-
 
 global last_search
 global last_list
