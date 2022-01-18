@@ -13,20 +13,23 @@ game_data = []
 game_data.clear
 tempo = []
 percentage = 0
+gen_list = []
 
 # http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=240&key=AF90EFF02499BB3CDDFFF28629DEA47B&steamid=76561198084867313
     
 # Het scherm
 
 User_column = [
-    [sg.Text('Username: '),
-        sg.Input(size=(25,20), key='_USER_'),
-        sg.Button('Search')],
+    [   sg.vtop(sg.Text('Username: ')),
+        sg.vtop(sg.Input(size=(25,20), key='_USER_')),
+        sg.vtop(sg.Button('Search')),
+        ],
+    [sg.Listbox(values=gen_list, enable_events=True, size=(55,20), key='_GENERAL_')]
 ]
 
 file_list_column = [
-    [sg.Text('Search Game: ', size=(15,1)), 
-        sg.Input(do_not_clear=True, size=(20,1),enable_events=True, key='_INPUT_'),],
+    [sg.Text('Search Game: ', size=(10,1)), 
+        sg.Input(do_not_clear=True, size=(30,1),enable_events=True, key='_INPUT_'),],
     [sg.Listbox(values=game_list, enable_events=True, size=(55,40), key='_LIST_')],
 ]
 
@@ -34,11 +37,9 @@ game_data_column = [
     [sg.vtop(sg.Text("Game data will be displayed here:"),
         sg.Text(size=(15,1), key="_TOUT_"))],
     [sg.vtop(sg.Listbox(values=game_data, enable_events=True, size=(55,20), key='_DATA_'))],
-    [sg.ProgressBar(100, orientation='h', size=(35,20), key='_DATA_')],
-    [sg.vbottom(sg.Listbox(values=tempo, enable_events=True, size=(55,15),  key='_GRAPH_'))]
+    [sg.ProgressBar(100, orientation='h', size=(31,20), key='_DATA_')],
+    [sg.vbottom(sg.Listbox(values=tempo, enable_events=True, size=(55,20),  key='_GRAPH_'))]
 ]
-
-
 
 layout = [
     [ sg.Column(User_column),
@@ -59,8 +60,22 @@ def userinfo(username):         # User info krijgen uit de steam API
     user_data = json.loads(response1.read())
     if user_data["response"]["success"] == 1:
         steam_id = user_data['response']['steamid']
+        gen_data()
     else:
         sg.popup_error('User does not exist')
+
+def gen_data():
+    global gen_list
+    x = 0
+    URL2= f"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={API_key}&steamid={steam_id}&format=json&include_appinfo=1"
+    response5 = urlopen(URL2)
+    game_library = json.loads(response5.read())
+    for game in game_library["response"]["games"]:
+        if game["playtime_forever"] != 0:
+            gen_list.append(f'{game["name"]}:{game["playtime_forever"]}')
+            x +=1
+    gen_list.sort()
+    window.Element('_GENERAL_').Update(gen_list)
 
 def game_info():            # Alles games van de User verzamelen en in een lijst stoppen
     global game_library
@@ -107,7 +122,7 @@ def achievements(appid):    # Behaalde achievement percentage van de aangeklikte
                 percentage = round(p, 2)
                 game_data.clear()
                 game_data.append(game_name)
-                ProgressBar.UpdateBar(percentage, 100)
+                # ProgressBar.UpdateBar(percentage, 100)
                 window.Element('_DATA_').Update(game_data)
         if response3 == 400:
             window.Element('_DATA_').Update('')
@@ -122,7 +137,6 @@ def achievements(appid):    # Behaalde achievement percentage van de aangeklikte
         game_data.clear()
         game_data.append(game_name)
         game_data.append(NA)
-
         window.Element('_DATA_').Update(game_data)
 
 def game_id(name):
