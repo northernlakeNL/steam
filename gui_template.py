@@ -1,9 +1,11 @@
+import threading
 import PySimpleGUI as sg
 import json
 from urllib.request import urlopen
 from PySimpleGUI.PySimpleGUI import ProgressBar
 import requests
 import math
+# import sshpi
 
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 game_list = []
@@ -122,6 +124,7 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
     URL4=f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     achieved = 0
     to_achieve = 0
+    progress = 0
     r = requests.get(URL3)
     response3 = r.status_code
     try:
@@ -137,11 +140,13 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
                 to_achieve +=1
                 progress = achieved / to_achieve
                 p = progress * 100
-                percentage = round(p, 2)
+                percentage = f"behaald:     {round(p, 2)}%"
                 game_data.clear()
                 game_data.append(game_name)
                 game_data.append(playtime)
+                game_data.append(percentage)
                 window.Element('_DATA_').Update(game_data)
+            #threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
         if response3 == 400:                                # Response code check (negatief)
             window.Element('_DATA_').Update('')
             NA = "Not Available"
@@ -175,7 +180,7 @@ def game_id(name):                      # App ID met playtime opzoeken
                 minutes = round(((game["playtime_forever"] / 60) - hours) * 60)
                 if minutes < 10:
                     minutes = f'0{minutes}'
-                playtime = f'playtime:      {hours}h:{minutes}m'
+                playtime = f'playtime:     {hours}h:{minutes}m'
             else:
                 playtime = f'{game["playtime_forever"]}m'
             achievements(app_id, playtime)
