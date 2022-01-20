@@ -1,11 +1,9 @@
-import threading
 import PySimpleGUI as sg
 import json
 from urllib.request import urlopen
 from PySimpleGUI.PySimpleGUI import ProgressBar
 import requests
 import math
-import sshpi
 
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 game_list = []
@@ -124,7 +122,6 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
     URL4=f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     achieved = 0
     to_achieve = 0
-    progress = 0
     r = requests.get(URL3)
     response3 = r.status_code
     try:
@@ -145,7 +142,6 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
                 game_data.append(game_name)
                 game_data.append(playtime)
                 window.Element('_DATA_').Update(game_data)
-            #threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
         if response3 == 400:                                # Response code check (negatief)
             window.Element('_DATA_').Update('')
             NA = "Not Available"
