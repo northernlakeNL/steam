@@ -5,7 +5,7 @@ from urllib.request import urlopen
 from PySimpleGUI.PySimpleGUI import ProgressBar
 import requests
 import math
-# import sshpi
+import sshpi
 
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 game_list = []
@@ -146,7 +146,7 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
                 game_data.append(playtime)
                 game_data.append(percentage)
                 window.Element('_DATA_').Update(game_data)
-            #threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
+            threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
         if response3 == 400:                                # Response code check (negatief)
             window.Element('_DATA_').Update('')
             NA = "Not Available"
