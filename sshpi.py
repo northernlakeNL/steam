@@ -1,5 +1,6 @@
 from fabric import Connection
 
+
 def ledbalk(voortgang):  # voortgang is % achievements
     try:
         with Connection('swaggerlord.ooguy.com', user='pi', connect_kwargs={"password": "coolcool"}) as c:
@@ -12,7 +13,7 @@ def ledbalk(voortgang):  # voortgang is % achievements
         "lol"
 
 
-def vrienddisplay(naam):
+def vrienddisplay(naam):  # naam is naam :)
     try:
         with Connection('swaggerlord.ooguy.com', user='pi', connect_kwargs={"password": "coolcool"}) as c:
             PID = c.run('pgrep -f friend.py', warn=True, hide=True).stdout.strip()
