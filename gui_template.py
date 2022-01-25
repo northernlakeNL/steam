@@ -36,8 +36,8 @@ file_list_column = [                                        # De gebruikers bibl
 game_data_column = [                                        # Alle game data van de aangeklikte game weergeven
     [sg.vtop(sg.Text("Game data will be displayed here:"))],
     [sg.vtop(sg.Listbox(values=game_data, enable_events=True, s=(55,20), expand_x=True, expand_y=True, k='_DATA_'))],
-    [sg.vbottom(sg.Text("Game data Graph                                                  ")),
-                (sg.Combo(values=lijst, s=(10,1), k='_GRAPH_'))],
+    [sg.vbottom(sg.Text("Game data Graph")),
+                (sg.Combo(values=lijst, s=(10,1), pad=(5,0), k='_GRAPH_'))],
     [sg.vbottom(sg.Listbox(values=tempo, enable_events=True, s=(55,20),  k='_GRAPH_'))]
 ]
 
@@ -147,7 +147,6 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
                 game_data.append(game_name)
                 game_data.append(playtime)
                 game_data.append(percentage)
-                progress_bar.Update(percentage)
                 window.Element('_DATA_').Update(game_data)
             threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
         if response3 == 400:                                # Response code check (negatief)

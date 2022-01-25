@@ -1,10 +1,12 @@
 import threading
+from turtle import xcor
 import PySimpleGUI as sg
 import json
 from urllib.request import urlopen
 from PySimpleGUI.PySimpleGUI import ProgressBar
 import requests
 import math
+from matplotlib import pyplot as plt
 # import sshpi
 
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
@@ -13,11 +15,60 @@ game_data = []
 tempo = []
 percentage = 0
 gen_list = []
-
+# http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={AF90EFF02499BB3CDDFFF28629DEA47B}&steamid={76561198172219198}&format=json&include_appinfo=1
 # http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=240&key=AF90EFF02499BB3CDDFFF28629DEA47B&steamid=76561198084867313
 
-# Het scherm
 
+# ------------------------------------------------------------------------------ Grafieken van steamdata (matplotlib) ------------------------------------------------
+
+# x_as = ['random1', 'random2', 'random3', 'random4', 'random5', 'random6', 'random7', 'random8', 'random9', 'random10', 'random11']
+
+# y_as = [38496, 42000, 46752, 49320, 53200, 56000, 
+#         62316, 64928, 67317, 68748, 73752]
+
+
+# plt.xticks(rotation=60)
+# plt.bar(x_as, y_as, label='Python Developers')
+# plt.title("Salary * Ages"), plt.xlabel("ages"), plt.ylabel("Salary")
+# plt.legend()
+# plt.show()
+
+
+
+def graph_values():
+    URL_APPID = f"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={API_key}&steamid={steam_id}&format=json&include_appinfo=1"
+    response_gamedata = urlopen(URL_APPID)
+    game_library = json.loads(response_gamedata.read())
+    time_list = []
+    x_axis = []                                         #lst van de games
+    y_axis = []                                            #lst van de uren
+    for game in game_library["response"]["games"]:
+        if game["playtime_forever"] != 0:
+            time_list.append(game["playtime_forever"])
+            time_list.sort()
+    for x in range(len(time_list)-10, len(time_list)):      # Tijden met games samen voegen voor de lijst
+        for game in game_library["response"]["games"]:
+            if time_list[x] == game["playtime_forever"]:
+                if game["playtime_forever"] >= 60:
+                    hours = (game["playtime_forever"] // 60)               # Minuten in uren zetten
+                    minutes = round(((game["playtime_forever"] // 60) - hours) * 60) # Overige weer terug zetten in minuten
+                    if minutes < 10:
+                        minutes = f'0{minutes}'
+                    play_time = f'{hours}:{minutes}'
+                else:
+                    play_time = game["playtime_forever"]
+                x_axis.append(game["name"])
+                y_axis.append(hours)
+    plt.xticks(rotation=90)
+    plt.barh(x_axis, y_axis, label='Time')
+    plt.title("Mosted played games"), plt.xlabel("hours"), plt.ylabel("Games")
+    plt.ylim(ymin=0)
+    plt.legend()
+    mng = plt.get_current_fig_manager()         #Fullscreen plt show
+    mng.window.state('zoomed')                  #Fullscreen plt show
+    plt.show()
+
+# --------------------------------------------------------------------------------------------------------------------------------------------------------------------
 User_column = [                                             # De eerste Colom waar de gebruikersnaam kan worden ingevuld en de algemen data komt
     [   sg.vtop(sg.Text('Username: ')),
         sg.vtop(sg.Input(size=(25,20), key='_USER_')),
@@ -36,7 +87,6 @@ game_data_column = [                                        # Alle game data van
     [sg.vtop(sg.Text("Game data will be displayed here:"),
         sg.Text(size=(15,1), key="_TOUT_"))],  # doet dit iets? - M.K.
     [sg.vtop(sg.Listbox(values=game_data, enable_events=True, size=(55,20), expand_x=True, expand_y=True, key='_DATA_'))],
-    [sg.ProgressBar(100, orientation='h', size=(31,20), key='_DATA_')],
     [sg.vbottom(sg.Listbox(values=tempo, enable_events=True, size=(55,20),  key='_GRAPH_'))]
 ]
 
@@ -86,8 +136,8 @@ def gen_data():                 # Algemene Data zoals meest gespeelde games + ti
             for game in game_library["response"]["games"]:
                 if time_list[x] == game["playtime_forever"]:
                     if game["playtime_forever"] >= 60:
-                        hours = math.floor(game["playtime_forever"] / 60)               # Minuten in uren zetten
-                        minutes = round(((game["playtime_forever"] / 60) - hours) * 60) # Overige weer terug zetten in minuten
+                        hours = (game["playtime_forever"] // 60)               # Minuten in uren zetten
+                        minutes = round(((game["playtime_forever"] // 60) - hours) * 60) # Overige weer terug zetten in minuten
                         if minutes < 10:
                             minutes = f'0{minutes}'
                         play_time = f'{hours}:{minutes}'
@@ -113,6 +163,7 @@ def game_info():            # Alles games van de User verzamelen en in een lijst
         game_list.append(game["name"])
         x +=1
     game_list.sort()
+    graph_values()                                          #Runned graph function
     window.Element('_LIST_').Update(game_list)
 
 def achievements(appid, playtime):      # Behaalde achievement percentage van de aangeklikte game verzamalen
