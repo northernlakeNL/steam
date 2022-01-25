@@ -5,7 +5,7 @@ from urllib.request import urlopen
 from PySimpleGUI.PySimpleGUI import ProgressBar
 import requests
 import math
-import sshpi
+# import sshpi
 
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 game_list = []
@@ -13,7 +13,6 @@ game_data = []
 tempo = []
 percentage = 0
 gen_list = []
-lijst = ['lijst', 'lijst2', 'lijst3']
 
 # http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=240&key=AF90EFF02499BB3CDDFFF28629DEA47B&steamid=76561198084867313
 
@@ -21,24 +20,24 @@ lijst = ['lijst', 'lijst2', 'lijst3']
 
 User_column = [                                             # De eerste Colom waar de gebruikersnaam kan worden ingevuld en de algemen data komt
     [   sg.vtop(sg.Text('Username: ')),
-        sg.vtop(sg.Input(s=(25,20), k='_USER_')),
+        sg.vtop(sg.Input(size=(25,20), key='_USER_')),
         sg.vtop(sg.Button('Search')),
         ],
-    [sg.Listbox(values=gen_list, enable_events=True, s=(55,20), k='_GENERAL_')]
+    [sg.Listbox(values=gen_list, enable_events=True, size=(55,20), k='_GENERAL_')]
 ]
 
 file_list_column = [                                        # De gebruikers bibliotheek weergeven met een zoek functie
-    [sg.Text('Search Game: ', s=(10,1)),
-        sg.Input(do_not_clear=True, s=(30,1),enable_events=True, k='_INPUT_'),],
-    [sg.Listbox(values=game_list, enable_events=True, s=(55,40), k='_LIST_')],
+    [sg.Text('Search Game: ', size=(10,1)),
+        sg.Input(do_not_clear=True, size=(30,1),enable_events=True, key='_INPUT_'),],
+    [sg.Listbox(values=game_list, enable_events=True, size=(55,40), key='_LIST_')],
 ]
 
 game_data_column = [                                        # Alle game data van de aangeklikte game weergeven
-    [sg.vtop(sg.Text("Game data will be displayed here:"))],
-    [sg.vtop(sg.Listbox(values=game_data, enable_events=True, s=(55,20), expand_x=True, expand_y=True, k='_DATA_'))],
-    [sg.vbottom(sg.Text("Game data Graph                                                  ")),
-                (sg.Combo(values=lijst, s=(10,1), k='_GRAPH_'))],
-    [sg.vbottom(sg.Listbox(values=tempo, enable_events=True, s=(55,20),  k='_GRAPH_'))]
+    [sg.vtop(sg.Text("Game data will be displayed here:"),
+        sg.Text(size=(15,1), key="_TOUT_"))],  # doet dit iets? - M.K.
+    [sg.vtop(sg.Listbox(values=game_data, enable_events=True, size=(55,20), expand_x=True, expand_y=True, key='_DATA_'))],
+    [sg.ProgressBar(100, orientation='h', size=(31,20), key='_DATA_')],
+    [sg.vbottom(sg.Listbox(values=tempo, enable_events=True, size=(55,20),  key='_GRAPH_'))]
 ]
 
 layout = [                                                  # volgorde van de layout van links naar rechts
@@ -147,9 +146,8 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
                 game_data.append(game_name)
                 game_data.append(playtime)
                 game_data.append(percentage)
-                progress_bar.Update(percentage)
                 window.Element('_DATA_').Update(game_data)
-            threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
+            #threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
         if response3 == 400:                                # Response code check (negatief)
             window.Element('_DATA_').Update('')
             NA = "Not Available"
