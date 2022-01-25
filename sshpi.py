@@ -20,6 +20,8 @@ def vrienddisplay(naam):  # naam is naam :)
             if PID:
                 c.run(f'kill {PID}', warn=True)
         with Connection('swaggerlord.ooguy.com', user='pi', connect_kwargs={"password": "coolcool"}) as c:
+            c.run(f'python3 /home/pi/hd44780/wave.py')
             c.run(f'python3 /home/pi/hd44780/friend.py -n "{naam}"')
     except TimeoutError:
         "lol"
+
