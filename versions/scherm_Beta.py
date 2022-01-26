@@ -34,7 +34,7 @@ file_list_column = [                                        # De gebruikers bibl
     [sg.Text('Search Game: ', size=(10,1)),
      sg.Input(do_not_clear=True, size=(30,1),enable_events=True, key='_INPUT_'),
      ],
-    [sg.vtop(sg.Listbox(values=game_list, enable_events=True, size=(55,20), key='_LIST_'))],]
+    [sg.Listbox(values=game_list, enable_events=True, size=(55,40), key='_LIST_')],]
 
 game_data_column = [                                        # Alle game data van de aangeklikte game weergeven
     [sg.vtop(sg.Text("Game data will be displayed here:")),],
@@ -69,6 +69,33 @@ def URL4(appid):
     URL4    =   f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     return URL4
     
+def genres():
+    global steam_id
+    # response_gamedata_url_1 = urlopen(URL1)
+    json_file = open('C:/Github/steam/versions/gamesTom.json', 'r')
+    data1 = json.load(json_file)
+    appidlst = []
+    genreslst = []
+    for gameid in data1["response"]["games"]:
+        appid = gameid['appid']
+        appidlst.append(appid)
+    for appid in appidlst:
+        URL2 = f'https://store.steampowered.com/api/appdetails?appids={appid}'
+        print(URL2)
+        response_gamedata_url_2 = urlopen(URL2)
+        data2 = json.loads(response_gamedata_url_2.read())
+        print(data2)
+        if data2[appid]["success"] == True:
+            print("kaas")
+            # for genre in data2[f'{appid}']['data']['genres']:
+            #     genreslst.append(genre)
+        else:
+            print('Failed')
+    print(genreslst)
+
+genres()
+
+
 def time(game_library):
     time_list = []
     for game in game_library["response"]["games"]:
@@ -136,16 +163,14 @@ def game_info():            # Alles games van de User verzamelen en in een lijst
 
 def achievements(appid, playtime):      # Behaalde achievement percentage van de aangeklikte game verzamalen
     global percentage
-    global URL3
-    global URL4
     global game_data
     global percentage
-    URL3=f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={appid}&key={API_key}&steamid={steam_id}'
-    URL4=f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
+    URL1= URL3(steam_id)
+    URL2= URL4(steam_id)
     achieved = 0
     to_achieve = 0
     progress = 0
-    r = requests.get(URL3)
+    r = requests.get(URL1)
     response3 = r.status_code
     try:
         if response3 == 200:                                # Response code check (positief)
@@ -154,7 +179,7 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
             if achievement_user['playerstats']['achievements']:         # Achievements opzoeken van de gebruiker
                 for x in achievement_user['playerstats']['achievements']:
                     achieved +=1
-                response4 = requests.get(URL4)
+                response4 = requests.get(URL2)
                 achievement_all = response4.json()
             for x in achievement_all['achievementpercentages']['achievements']: # Alle beschikbare Achievements opzoeken van het spel
                 to_achieve +=1
@@ -205,6 +230,8 @@ def game_id(name):                      # App ID met playtime opzoeken
                 playtime = f'{game["playtime_forever"]}m'
             achievements(app_id, playtime)
 
+#-------------------------------------------------value activaties-------------------------------------------------#
+
 while True:
     event, values = window.Read()
     last_search = ""
@@ -231,7 +258,3 @@ while True:
     if event == '-input-':
         graph_values()
 window.close()
-
-
-
-#-------------------------------------------------IMPORTS-------------------------------------------------#
