@@ -21,20 +21,6 @@ gen_list = []
 
 # ------------------------------------------------------------------------------ Grafieken van steamdata (matplotlib) ------------------------------------------------
 
-# x_as = ['random1', 'random2', 'random3', 'random4', 'random5', 'random6', 'random7', 'random8', 'random9', 'random10', 'random11']
-
-# y_as = [38496, 42000, 46752, 49320, 53200, 56000, 
-#         62316, 64928, 67317, 68748, 73752]
-
-
-# plt.xticks(rotation=60)
-# plt.bar(x_as, y_as, label='Python Developers')
-# plt.title("Salary * Ages"), plt.xlabel("ages"), plt.ylabel("Salary")
-# plt.legend()
-# plt.show()
-
-
-
 def graph_values():
     URL_APPID = f"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={API_key}&steamid={steam_id}&format=json&include_appinfo=1"
     response_gamedata = urlopen(URL_APPID)
@@ -69,6 +55,7 @@ def graph_values():
     plt.show()
 
 # --------------------------------------------------------------------------------------------------------------------------------------------------------------------
+
 User_column = [                                             # De eerste Colom waar de gebruikersnaam kan worden ingevuld en de algemen data komt
     [   sg.vtop(sg.Text('Username: ')),
         sg.vtop(sg.Input(size=(25,20), key='_USER_')),
