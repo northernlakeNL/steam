@@ -18,8 +18,21 @@ gen_list = []
 # http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={AF90EFF02499BB3CDDFFF28629DEA47B}&steamid={76561198172219198}&format=json&include_appinfo=1
 # http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=240&key=AF90EFF02499BB3CDDFFF28629DEA47B&steamid=76561198084867313
 
+def genres():
+    global steam_id
+    URL1 = f"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={API_key}&steamid=NL_Northie&format=json&include_appinfo=1"
+    response_gamedata_url_1 = urlopen(URL1)
+    data1 = json.loads(response_gamedata_url_1.read())
+    appidlst = []
+    for gameid in data1["response"]["games"]:
+        appid = gameid['appid']
+        appidlst.append(appid)
+    print(appidlst)
 
-# ------------------------------------------------------------------------------ Grafieken van steamdata (matplotlib) ------------------------------------------------
+genres()
+
+
+# ----------------------------------------------------------------- Grafieken van steamdata (matplotlib) ------------------------------------------------
 
 def graph_values():
     global steam_id
@@ -27,8 +40,9 @@ def graph_values():
     response_gamedata = urlopen(URL_APPID)
     game_library = json.loads(response_gamedata.read())
     time_list = []
-    x_axis = []                                         #lst van de games
-    y_axis = []                                            #lst van de uren
+    x = 0
+    x_axis = ['']                                           #lst van de games
+    y_axis = [0]                                            #lst van de uren
     for game in game_library["response"]["games"]:
         if game["playtime_forever"] != 0:
             time_list.append(game["playtime_forever"])
