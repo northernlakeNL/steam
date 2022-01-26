@@ -7,7 +7,6 @@ from PySimpleGUI.PySimpleGUI import ProgressBar
 import requests
 import math
 import sshpi
-import gamesTom
 
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 game_list = []
@@ -16,6 +15,7 @@ tempo = []
 percentage = 0
 gen_list = []
 lijst = ['lijst', 'lijst2', 'lijst3']
+
 
 # http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=240&key=AF90EFF02499BB3CDDFFF28629DEA47B&steamid=76561198084867313
 
@@ -60,28 +60,26 @@ window['_LIST_'].expand(True, True, True)
 def genres():
     global steam_id
     # response_gamedata_url_1 = urlopen(URL1)
-    print(gamesTom)
-
-    data1 = json.loads(response_gamedata_url_1.read())
+    json_file = open('C:/Github/steam/versions/gamesTom.json', 'r')
+    data1 = json.load(json_file)
     appidlst = []
     genreslst = []
     for gameid in data1["response"]["games"]:
         appid = gameid['appid']
         appidlst.append(appid)
-    try:
-        for appid in appidlst:
-            URL2 = f'https://store.steampowered.com/api/appdetails?appids={appid}'
-            print(URL2)
-            response_gamedata_url_2 = urlopen(URL2)
-            data2 = json.loads(response_gamedata_url_2.read())
-            if data2[appid]["success"] == 'true':
-                for genre in data2[f'{appid}']['data']['genres']:
-                    genreslst.append(genre)
-            else:
-                print('Failed')
-        print(genreslst)
-    except KeyError:
-        print(f'NO INFO FOUND')
+    for appid in appidlst:
+        URL2 = f'https://store.steampowered.com/api/appdetails?appids={appid}'
+        print(URL2)
+        response_gamedata_url_2 = urlopen(URL2)
+        data2 = json.loads(response_gamedata_url_2.read())
+        print(data2)
+        if data2[appid]["success"] == True:
+            print("kaas")
+            # for genre in data2[f'{appid}']['data']['genres']:
+            #     genreslst.append(genre)
+        else:
+            print('Failed')
+    print(genreslst)
 genres()
 
 def userinfo(username):         # User info krijgen uit de steam API
