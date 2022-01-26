@@ -22,6 +22,7 @@ gen_list = []
 # ------------------------------------------------------------------------------ Grafieken van steamdata (matplotlib) ------------------------------------------------
 
 def graph_values():
+    global steam_id
     URL_APPID = f"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={API_key}&steamid={steam_id}&format=json&include_appinfo=1"
     response_gamedata = urlopen(URL_APPID)
     game_library = json.loads(response_gamedata.read())
@@ -61,7 +62,9 @@ User_column = [                                             # De eerste Colom wa
         sg.vtop(sg.Input(size=(25,20), key='_USER_')),
         sg.vtop(sg.Button('Search')),
         ],
-    [sg.Listbox(values=gen_list, enable_events=True, size=(55,20), k='_GENERAL_')]
+    [sg.Listbox(values=gen_list, enable_events=True, size=(55,20), k='_GENERAL_')],
+    [sg.vbottom(sg.Text("Grafiek van je meest gespeelde games"))],
+    [sg.vbottom(sg.Button("Press", key='-input-'))],
 ]
 
 file_list_column = [                                        # De gebruikers bibliotheek weergeven met een zoek functie
@@ -150,7 +153,7 @@ def game_info():            # Alles games van de User verzamelen en in een lijst
         game_list.append(game["name"])
         x +=1
     game_list.sort()
-    graph_values()                                          #Runned graph function
+    # graph_values()                                          #Runned graph function
     window.Element('_LIST_').Update(game_list)
 
 def achievements(appid, playtime):      # Behaalde achievement percentage van de aangeklikte game verzamalen
@@ -247,4 +250,6 @@ while True:
         game_name = str(app_name[0])
         game_id(game_name)
         window.Element('_DATA_').Update(game_data)
+    if event == '-input-':
+        graph_values()
 window.close()
