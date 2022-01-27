@@ -27,29 +27,36 @@ User_column = [                                             # De eerste Colom wa
      sg.vtop(sg.Button('Search'))
      ],
     [sg.Listbox(values=gen_list, enable_events=True, size=(55,20), k='_GENERAL_')],
-    [sg.vbottom(sg.Text("Grafiek van je meest gespeelde games"))],
-    [sg.vbottom(sg.Button("Press", key='-input-'))],]
+    # [sg.vbottom(sg.Text("Grafiek van je meest gespeelde games"))],
+    # [sg.vbottom(sg.Button("Press", key='-input-'))],
+    ]
+
+test_column = [
+    [sg.vbottom(sg.Listbox(values=gen_list, enable_events=True, size=(90,20), k='_GENERAL_'))]
+]
 
 file_list_column = [                                        # De gebruikers bibliotheek weergeven met een zoek functie
     [sg.Text('Search Game: ', size=(10,1)),
      sg.Input(do_not_clear=True, size=(30,1),enable_events=True, key='_INPUT_'),
      ],
-    [sg.Listbox(values=game_list, enable_events=True, size=(55,40), key='_LIST_')],]
+    [sg.Listbox(values=game_list, enable_events=True, size=(55,20), key='_LIST_')],]
 
 game_data_column = [                                        # Alle game data van de aangeklikte game weergeven
     [sg.vtop(sg.Text("Game data will be displayed here:")),],
     [sg.vtop(sg.Listbox(values=game_data, enable_events=True, size=(55,20), expand_x=True, expand_y=True, key='_DATA_'))],
-    [sg.vbottom(sg.Listbox(values=tempo, enable_events=True, size=(55,20),  key='_GRAPH_'))],]
+    ]
 
-layout = [[ sg.Column(User_column),                                                 # volgorde van de layout van links naar rechts
-            sg.VSeperator(),
-            sg.Column(file_list_column),
-            sg.VSeparator(),
-            sg.Column(game_data_column)]]
+sg.Tab
 
-window = sg.Window("game info", layout,element_justification='center', resizable=True, finalize=True)
-window.Maximize()
-window.finalize()
+layout = [[ sg.Frame(layout= User_column, title='', border_width=0),                                              # volgorde van de layout van links naar rechts
+            sg.Frame(layout= file_list_column, title='', border_width=0),
+            sg.Frame(layout= game_data_column, title='', border_width=0),
+            sg.Frame(layout= test_column, title='', border_width=2, vertical_alignment='b')
+            ]]
+
+window = sg.Window("Victis-Victis Add-On", layout, size=(1280, 960), element_justification='center', resizable=True, finalize=True)
+# window.Maximize()
+# window.finalize()
 window['_LIST_'].expand(True, True, True)
 
 
@@ -78,9 +85,11 @@ def graph_values(game_library):
     for x in play_stat:
         new_x = x.split(';')
         x_axis.append(new_x[0])
-        y_axis.append(int(new_x[1]))
+        y_axis.append(float(new_x[3]))
     plt.xticks(rotation=90)
     plt.barh(x_axis, y_axis, label='Time')
+    for i, v in enumerate(y_axis):
+        plt.text(v+0.1, i + 0, str(str(round(int(v), 0))), color='black')
     plt.title("Mosted played games"), plt.xlabel("hours"), plt.ylabel("Games")
     plt.ylim(ymin=0)
     plt.legend()
@@ -148,8 +157,9 @@ def time(game_library):
             if time_list[x] == game["playtime_forever"]:
                 if game["playtime_forever"] >= 60:
                     hours = (game["playtime_forever"] // 60)               # Minuten in uren zetten
-                    minutes = round(((game["playtime_forever"] // 60) - hours) * 60) # Overige weer terug zetten in minuten
-                    play_time = f'{hours}:{minutes}'
+                    minutes = (((game["playtime_forever"] // 60) - hours) * 60) # Overige weer terug zetten in minuten
+                    p_time = (game["playtime_forever"] / 60) 
+                    play_time = round(p_time, 2)
                     most_played.append(f'{name};{hours};{minutes};{play_time}')
                 else:
                     most_played.append(f'{name};{game["playtime_forever"]}') 
