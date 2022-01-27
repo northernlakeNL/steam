@@ -171,14 +171,14 @@ def userinfo(username):         # User info krijgen uit de steam API
     global steam_id
     if username.isdecimal():    # kan nu ook volledige steamid invullen (voor brendan enzo)
         steam_id = username
-        return print(gen_data())
+        return gen_data()
     else:
         URL = URL1(username)
         response1 = urlopen(URL)
         user_data = json.loads(response1.read())
         if user_data["response"]["success"] == 1:               # User opzoeken
             steam_id = user_data['response']['steamid']
-            return print(gen_data())
+            return gen_data()
         else:
             sg.popup_error('User does not exist')
 
@@ -222,7 +222,6 @@ def game_info(game_library):            # Alles games van de User verzamelen en 
         game_list.append(game["name"])
         x +=1
     game_list.sort()
-    # graph_values(game_library)                                          #Runned graph function
     window.Element('_LIST_').Update(game_list)
 
 def achievements(appid, playtime):      # Behaalde achievement percentage van de aangeklikte game verzamalen
@@ -305,7 +304,7 @@ while True:
         break
     if values['_USER_'].strip() != '' and ' ' not in values['_USER_'].strip():                      # User opzoeken
         username= values['_USER_']
-        userinfo(username)
+        game_data = userinfo(username)
     if values['_INPUT_'] != '':                     # Live search in library
         search = values['_INPUT_']
         if search.startswith(last_search):
@@ -320,4 +319,6 @@ while True:
         game_name = str(app_name[0])
         game_id(game_name)
         window.Element('_DATA_').Update(game_data)
+    if event == '-input-':
+        graph_values(game_data)
 window.close()
