@@ -29,7 +29,7 @@ def genres():
         appidlst.append(appid)
     print(appidlst)
 
-genres()
+# genres()
 
 
 # ----------------------------------------------------------------- Grafieken van steamdata (matplotlib) ------------------------------------------------
