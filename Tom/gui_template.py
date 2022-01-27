@@ -96,8 +96,13 @@ def genres(game_list):
     for key, val in tagsdict.items():
         key = key.replace(" ", "_")
         if val >= 1:
-            tagslst.append(f'{val}:     {key}')
-            tagslst.sort(reverse= True)                             
+            if val <10:
+                val = f'0{val}'
+                tagslst.append(f'{val}:     {key}')
+                tagslst.sort(reverse= True)          
+            else:
+                tagslst.append(f'{val}:     {key}')
+                tagslst.sort(reverse= True)                      
     window.Element('_GRAPH_').Update(tagslst)
 
 def userinfo(username):         # User info krijgen uit de steam API
