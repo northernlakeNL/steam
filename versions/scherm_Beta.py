@@ -74,23 +74,12 @@ def graph_values(game_library):
     x = 0
     x_axis = ['']                                           #lst van de games
     y_axis = [0]                                            #lst van de uren
-    for game in game_library["response"]["games"]:
-        if game["playtime_forever"] != 0:
-            time_list.append(game["playtime_forever"])
-            time_list.sort()
-    for x in range(len(time_list)-10, len(time_list)):      # Tijden met games samen voegen voor de lijst
-        for game in game_library["response"]["games"]:
-            if time_list[x] == game["playtime_forever"]:
-                if game["playtime_forever"] >= 60:
-                    hours = (game["playtime_forever"] // 60)               # Minuten in uren zetten
-                    minutes = round(((game["playtime_forever"] // 60) - hours) * 60) # Overige weer terug zetten in minuten
-                    if minutes < 10:
-                        minutes = f'0{minutes}'
-                    play_time = f'{hours}:{minutes}'
-                else:
-                    play_time = game["playtime_forever"]
-                x_axis.append(game["name"])
-                y_axis.append(hours)
+    play_stat = time(game_library)
+    for x in play_stat:
+        new_x = x.split(';')
+        print(new_x)
+        x_axis.append(new_x[0])
+        y_axis.append(new_x[1])
     plt.xticks(rotation=90)
     plt.barh(x_axis, y_axis, label='Time')
     plt.title("Mosted played games"), plt.xlabel("hours"), plt.ylabel("Games")
@@ -148,6 +137,7 @@ def genres(game_list):
     window.Element('_GRAPH_').Update(tagslst)
 
 def time(game_library):
+    most_played = []
     time_list = []
     for game in game_library["response"]["games"]:
         if game["playtime_forever"] != 0:
@@ -161,11 +151,10 @@ def time(game_library):
                     hours = (game["playtime_forever"] // 60)               # Minuten in uren zetten
                     minutes = round(((game["playtime_forever"] // 60) - hours) * 60) # Overige weer terug zetten in minuten
                     play_time = f'{hours}:{minutes}'
-                    return name, play_time, hours, minutes
+                    most_played.append(f'{name};{hours};{minutes};{play_time}')
                 else:
-                    play_time = game["playtime_forever"]
-                    return name, play_time
-    genres(game_library)
+                    most_played.append(f'{name};{game["playtime_forever"]}') 
+    return most_played
 
 def userinfo(username):         # User info krijgen uit de steam API
     global steam_id
