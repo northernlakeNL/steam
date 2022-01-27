@@ -68,33 +68,84 @@ def URL3(appid, steam_id):
 def URL4(appid):
     URL4    =   f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     return URL4
-    
-def genres():
-    global steam_id
-    # response_gamedata_url_1 = urlopen(URL1)
-    json_file = open('C:/Github/steam/versions/gamesTom.json', 'r')
-    data1 = json.load(json_file)
+
+def graph_values(game_library):
+    time_list = []
+    x = 0
+    x_axis = ['']                                           #lst van de games
+    y_axis = [0]                                            #lst van de uren
+    for game in game_library["response"]["games"]:
+        if game["playtime_forever"] != 0:
+            time_list.append(game["playtime_forever"])
+            time_list.sort()
+    for x in range(len(time_list)-10, len(time_list)):      # Tijden met games samen voegen voor de lijst
+        for game in game_library["response"]["games"]:
+            if time_list[x] == game["playtime_forever"]:
+                if game["playtime_forever"] >= 60:
+                    hours = (game["playtime_forever"] // 60)               # Minuten in uren zetten
+                    minutes = round(((game["playtime_forever"] // 60) - hours) * 60) # Overige weer terug zetten in minuten
+                    if minutes < 10:
+                        minutes = f'0{minutes}'
+                    play_time = f'{hours}:{minutes}'
+                else:
+                    play_time = game["playtime_forever"]
+                x_axis.append(game["name"])
+                y_axis.append(hours)
+    plt.xticks(rotation=90)
+    plt.barh(x_axis, y_axis, label='Time')
+    plt.title("Mosted played games"), plt.xlabel("hours"), plt.ylabel("Games")
+    plt.ylim(ymin=0)
+    plt.legend()
+    mng = plt.get_current_fig_manager()         #Fullscreen plt show
+    mng.window.state('zoomed')                  #Fullscreen plt show
+    plt.show()
+
+def genres(game_list):
+    global tagsdict
+    steam_json = open('C:/Users/tomno/Documents/GitHub/steam/Tom/steam.json', 'r')
+    steam_list = json.loads(steam_json.read())
+    genre = open('C:/Users/tomno/Documents/GitHub/steam/Tom/popular_genres.txt', 'r+')
     appidlst = []
-    genreslst = []
-    for gameid in data1["response"]["games"]:
-        appid = gameid['appid']
+    tagsdict = {}
+    y=0
+    genre_list = []
+    for x in genre:
+        genre_list.append(x)
+    genre_list.sort()
+    genre.close()
+    for genre in genre_list:
+        tagsdict[genre[:-1]]=y
+    for gameid in game_list["response"]["games"]:
+        appid = gameid["appid"]
         appidlst.append(appid)
-    for appid in appidlst:
-        URL2 = f'https://store.steampowered.com/api/appdetails?appids={appid}'
-        print(URL2)
-        response_gamedata_url_2 = urlopen(URL2)
-        data2 = json.loads(response_gamedata_url_2.read())
-        print(data2)
-        if data2[appid]["success"] == True:
-            print("kaas")
-            # for genre in data2[f'{appid}']['data']['genres']:
-            #     genreslst.append(genre)
-        else:
-            print('Failed')
-    print(genreslst)
-
-genres()
-
+        appidlst.sort()
+    for id in appidlst:
+        for value in steam_list:
+            if id == value["appid"]:
+                for game in steam_list:
+                    if id == game["appid"]:
+                        tag = game["steamspy_tags"]
+                        tag_list = tag.split(";")
+                        for tag in tag_list:
+                            if tag in tagsdict:
+                                tagsdict[tag] = tagsdict[tag] + 1
+                            else:
+                                tagsdict[tag] = 1
+                                genre_list.append(tag)
+                                with open('C:/Users/tomno/Documents/GitHub/steam/Tom/popular_genres.txt', 'a') as add_genre:
+                                    add_genre.write(f'\n{tag}')
+    tagslst = []
+    for key, val in tagsdict.items():
+        key = key.replace(" ", "_")
+        if val >= 1:
+            if val <10:
+                val = f'0{val}'
+                tagslst.append(f'{val}:     {key}')
+                tagslst.sort(reverse= True)          
+            else:
+                tagslst.append(f'{val}:     {key}')
+                tagslst.sort(reverse= True)                      
+    window.Element('_GRAPH_').Update(tagslst)
 
 def time(game_library):
     time_list = []
@@ -114,19 +165,20 @@ def time(game_library):
                 else:
                     play_time = game["playtime_forever"]
                     return name, play_time
+    genres(game_library)
 
 def userinfo(username):         # User info krijgen uit de steam API
     global steam_id
     if username.isdecimal():    # kan nu ook volledige steamid invullen (voor brendan enzo)
         steam_id = username
-        gen_data()
+        return gen_data()
     else:
         URL = URL1(username)
         response1 = urlopen(URL)
         user_data = json.loads(response1.read())
         if user_data["response"]["success"] == 1:               # User opzoeken
             steam_id = user_data['response']['steamid']
-            gen_data()
+            return gen_data()
         else:
             sg.popup_error('User does not exist')
 
@@ -134,31 +186,42 @@ def gen_data():                 # Algemene Data zoals meest gespeelde games + ti
     global gen_list
     time_list = []
     x = 0
-    response5 = urlopen(URL2)
+    URL= URL2(steam_id)
+    response5 = urlopen(URL)
     game_library = json.loads(response5.read())
     gen_list.clear()                                        # Herhaaldelijk inladen voorkomen
-    for game in game_library["response"]["games"]:
-        time_list = time(game_library)
-        name = time_list[0]
-        play_time = time_list[1]
-        gen_list.append(f'{name}, {play_time}')
+    try:
+        for game in game_library["response"]["games"]:
+            if game["playtime_forever"] != 0:
+                time_list.append(game["playtime_forever"])
+                time_list.sort()
+        for x in range(len(time_list)-10, len(time_list)):      # Tijden met games samen voegen voor de lijst
+            for game in game_library["response"]["games"]:
+                if time_list[x] == game["playtime_forever"]:
+                    if game["playtime_forever"] >= 60:
+                        hours = math.floor(game["playtime_forever"] / 60)               # Minuten in uren zetten
+                        minutes = round(((game["playtime_forever"] / 60) - hours) * 60) # Overige weer terug zetten in minuten
+                        if minutes < 10:
+                            minutes = f'0{minutes}'
+                        play_time = f'{hours}:{minutes}'
+                    else:
+                        play_time = game["playtime_forever"]
+                    gen_list.append(f'{game["name"]}, {play_time}')
         window.Element('_GENERAL_').Update(gen_list)
-    game_info()
+        game_info(game_library)
+        genres(game_library)
+        return game_library
+    except KeyError:
+        sg.popup_error("Game list not available\n(Maybe multiple users share that name?)")
 
-def game_info():            # Alles games van de User verzamelen en in een lijst stoppen
-    global game_library
+def game_info(game_library):            # Alles games van de User verzamelen en in een lijst stoppen
     global game_name
     global playtime
     x=0
-    URL= URL2(steam_id)
-    response5 = urlopen(URL2)
-    game_list.clear()
-    game_library = json.loads(response5.read())
     for game in game_library["response"]["games"]:      # Lijst van alle games van de gebruiker
         game_list.append(game["name"])
         x +=1
     game_list.sort()
-    # graph_values()                                          #Runned graph function
     window.Element('_LIST_').Update(game_list)
 
 def achievements(appid, playtime):      # Behaalde achievement percentage van de aangeklikte game verzamalen
@@ -212,9 +275,10 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
 def game_id(name):                      # App ID met playtime opzoeken
     global game_name
     global response2
+    global game_library
     response2 = requests.get(URL2)
-    library = response2.json()
-    for game in library['response']['games']:
+    game_library = response2.json()
+    for game in game_library['response']['games']:
         if name == game['name']:
             spel = game['name']
             game_name = f'game:         {spel}'
@@ -240,7 +304,7 @@ while True:
         break
     if values['_USER_'].strip() != '' and ' ' not in values['_USER_'].strip():                      # User opzoeken
         username= values['_USER_']
-        userinfo(username)
+        game_data = userinfo(username)
     if values['_INPUT_'] != '':                     # Live search in library
         search = values['_INPUT_']
         if search.startswith(last_search):
@@ -256,5 +320,5 @@ while True:
         game_id(game_name)
         window.Element('_DATA_').Update(game_data)
     if event == '-input-':
-        graph_values()
+        graph_values(game_data)
 window.close()
