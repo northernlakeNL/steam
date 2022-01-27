@@ -21,7 +21,7 @@ percentage = 0
 gen_list = []
 
 #-------------------------------------------------COLUMNS-------------------------------------------------#
-User_column = [                                             # De eerste Colom waar de gebruikersnaam kan worden ingevuld en de algemen data komt
+user_column = [                                             # De eerste Colom waar de gebruikersnaam kan worden ingevuld en de algemen data komt
     [(sg.Text('Username: ')),
      (sg.Input(size=(25,20), key='_USER_')),
      (sg.Button('Search'))
@@ -30,10 +30,6 @@ User_column = [                                             # De eerste Colom wa
     # [sg.vbottom(sg.Text("Grafiek van je meest gespeelde games"))],
     # [sg.vbottom(sg.Button("Press", key='-input-'))],
     ]
-
-test_column = [
-    [(sg.Listbox(values=gen_list, enable_events=True, size=(90,20), k='_GENERAL_'))]
-]
 
 file_list_column = [                                        # De gebruikers bibliotheek weergeven met een zoek functie
     [sg.Text('Search Game: ', size=(10,1)),
@@ -46,13 +42,31 @@ game_data_column = [                                        # Alle game data van
     [(sg.Listbox(values=game_data, enable_events=True, size=(55,20), expand_x=True, expand_y=True, key='_DATA_'))],
     ]
 
-sg.Tab
+#-------------------------------------------------TABS-------------------------------------------------#
 
-layout = [[ sg.Frame(layout= User_column, title='', border_width=0),                                              # volgorde van de layout van links naar rechts
-            sg.Frame(layout= file_list_column, title='', border_width=0),
-            sg.Frame(layout= game_data_column, title='', border_width=0),
-            sg.Frame(layout= test_column, title='', border_width=2, element_justification='center', vertical_alignment='bottom')
-            ]]
+tab1_layout = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='-input-')]]               # Verschillende tabs voor de unieke data
+tab2_layout = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]] # GENERAL is een placeholder
+tab3_layout = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
+tab4_layout = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
+tab5_layout = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
+tab6_layout = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
+
+tab_group_layout = [[sg.Tab('Time Graph', tab1_layout, font='Courier 15', key='-TAB1-', expand_x=True),
+                     sg.Tab('Genre Graph', tab2_layout, font='Courier 15', key='-TAB2-', expand_x=True),
+                     sg.Tab('Time per Genre', tab3_layout, font='Courier 15', key='-TAB2-', expand_x=True),
+                     sg.Tab('Achievements per Genre', tab4_layout, font='Courier 15', key='-TAB2-', expand_x=True),
+                     sg.Tab('User Data', tab5_layout, font='Courier 15', key='-TAB2-', expand_x=True),
+                     sg.Tab('CS:GO Stats', tab6_layout, font='Courier 15', key='-TAB2-', expand_x=True),
+                     ]]
+
+#-------------------------------------------------LAYOUT-------------------------------------------------#
+
+layout = [                                            # volgorde van de layout van links naar rechts
+            [sg.Frame(layout= user_column, title='', border_width=0, vertical_alignment='top'),
+             sg.Frame(layout= file_list_column, title='', border_width=0, vertical_alignment='top'),
+             sg.Frame(layout= game_data_column, title='', border_width=0, vertical_alignment='top'),],
+            [sg.TabGroup(layout= tab_group_layout, enable_events=True,)]
+            ]
 
 window = sg.Window("Victis-Victis Add-On", layout, size=(1280, 960), element_justification='center', resizable=True, finalize=True)
 # window.Maximize()
@@ -99,49 +113,49 @@ def graph_values(game_library):
 
 def genres(game_list):
     global tagsdict
-    steam_json = open('C:/Users/tomno/Documents/GitHub/steam/Tom/steam.json', 'r')
+    steam_json = open('C:/Users/tomno/Documents/GitHub/steam/Tom/steam.json', 'r')            # steam json lijst
     steam_list = json.loads(steam_json.read())
-    genre = open('C:/Users/tomno/Documents/GitHub/steam/Tom/popular_genres.txt', 'r+')
+    genre = open('C:/Users/tomno/Documents/GitHub/steam/Tom/popular_genres.txt', 'r+')        # lijst met genre/tags
     appidlst = []
     tagsdict = {}
     y=0
     genre_list = []
-    for x in genre:
+    for x in genre:                          #in een genre pythonlijst zetten                                                 
         genre_list.append(x)
     genre_list.sort()
     genre.close()
-    for genre in genre_list:
+    for genre in genre_list:              #lijst in een Dictionary zetten
         tagsdict[genre[:-1]]=y
-    for gameid in game_list["response"]["games"]:
+    for gameid in game_list["response"]["games"]:       # app id lijst van de gebruiker opvragen
         appid = gameid["appid"]
         appidlst.append(appid)
         appidlst.sort()
-    for id in appidlst:
-        for value in steam_list:
-            if id == value["appid"]:
-                for game in steam_list:
-                    if id == game["appid"]:
-                        tag = game["steamspy_tags"]
-                        tag_list = tag.split(";")
-                        for tag in tag_list:
-                            if tag in tagsdict:
-                                tagsdict[tag] = tagsdict[tag] + 1
+    for id in appidlst:              
+        for value in steam_list:               
+            if id == value["appid"]:               # checken if id van appidlst gelijk is aan een appid
+                for game in steam_list:               
+                    if id == game["appid"]:               # als de appid gelijk is
+                        tag = game["steamspy_tags"]               # de steam tags pakken
+                        tag_list = tag.split(";")               # tags opsplitsen
+                        for tag in tag_list:               
+                            if tag in tagsdict:               # checken of tag in tagsdict staat
+                                tagsdict[tag] = tagsdict[tag] + 1               # tag +1 value geven
                             else:
-                                tagsdict[tag] = 1
-                                genre_list.append(tag)
+                                tagsdict[tag] = 1               # tag toevoegen aan dictionary en een waarde van 1 geven
+                                genre_list.append(tag)               # tag toevoegen aan genre_list
                                 with open('C:/Users/tomno/Documents/GitHub/steam/Tom/popular_genres.txt', 'a') as add_genre:
-                                    add_genre.write(f'\n{tag}')
+                                    add_genre.write(f'\n{tag}')               # tag toevoegen aan alle bekende tags/genres
     tagslst = []
     for key, val in tagsdict.items():
-        key = key.replace(" ", "_")
+        key = key.replace(" ", "_")               # spaties vervangen voor '_'
         if val >= 1:
             if val <10:
-                val = f'0{val}'
-                tagslst.append(f'{val}:     {key}')
+                val = f'0{val}'               # als de waarde lager dan 10 is een 0 voor het cijfer toevoegen
+                tagslst.append(f'{val}:     {key}')               # nieuwe waare toeveoegen in lijst
                 tagslst.sort(reverse= True)          
             else:
-                tagslst.append(f'{val}:     {key}')
-                tagslst.sort(reverse= True)                      
+                tagslst.append(f'{val}:     {key}')               # waarde toevoegen aan lijst
+    tagslst.sort(reverse= True)                      
     window.Element('_GRAPH_').Update(tagslst)
 
 def time(game_library):
