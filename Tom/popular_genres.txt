@@ -423,3 +423,231 @@ Early Access
 Free to Play
 Kickstarter
 Psychological Horror
+Action
+FPS
+Multiplayer
+Sci-fi
+Classic
+Singleplayer
+Puzzle
+First-Person
+Co-op
+Shooter
+Strategy
+RTS
+RPG
+Open World
+Fantasy
+Sandbox
+Funny
+Hack and Slash
+Female Protagonist
+Tower Defense
+Turn-Based Strategy
+Story Rich
+Zombies
+World War II
+Adventure
+Mature
+LEGO
+2D
+Turn-Based
+Star Wars
+Sniper
+MMORPG
+Massively Multiplayer
+Point & Click
+Racing
+Horror
+Atmospheric
+Sports
+Golf
+Casual
+Pinball
+Arcade
+Survival
+Free to Play
+Magic
+Comedy
+Indie
+Match 3
+Local Multiplayer
+Space
+Level Editor
+Anime
+Fighting
+Building
+Rogue-like
+Crafting
+Soccer
+Medieval
+City Builder
+Third Person
+War
+Simulation
+Shoot 'Em Up
+Souls-like
+Mythology
+Survival Horror
+Psychological Horror
+Ninja
+Parkour
+Dragons
+Family Friendly
+Historical
+Robots
+Quick-Time Events
+Rome
+RPGMaker
+Chess
+Board Game
+Choices Matter
+Great Soundtrack
+JRPG
+Clicker
+Assassin
+Dark Fantasy
+Difficult
+Gore
+MOBA
+Lara Croft
+Early Access
+Mini Golf
+Hidden Object
+3D Platformer
+Psychological
+Nudity
+Visual Novel
+Utilities
+Software
+Design & Illustration
+Memes
+Resource Management
+Card Game
+Trading Card Game
+Management
+Stealth
+Pixel Graphics
+Character Action Game
+VR
+Rhythm
+Character Customization
+Battle Royale
+Football
+Education
+Action
+FPS
+Multiplayer
+Sci-fi
+Classic
+Singleplayer
+Puzzle
+First-Person
+Co-op
+Shooter
+Strategy
+RTS
+RPG
+Open World
+Fantasy
+Sandbox
+Funny
+Hack and Slash
+Female Protagonist
+Tower Defense
+Turn-Based Strategy
+Story Rich
+Zombies
+World War II
+Adventure
+Mature
+LEGO
+2D
+Turn-Based
+Star Wars
+Sniper
+MMORPG
+Massively Multiplayer
+Point & Click
+Racing
+Horror
+Atmospheric
+Sports
+Golf
+Casual
+Pinball
+Arcade
+Survival
+Free to Play
+Magic
+Comedy
+Indie
+Match 3
+Local Multiplayer
+Space
+Level Editor
+Anime
+Fighting
+Building
+Rogue-like
+Crafting
+Soccer
+Medieval
+City Builder
+Third Person
+War
+Simulation
+Shoot 'Em Up
+Souls-like
+Mythology
+Survival Horror
+Psychological Horror
+Ninja
+Parkour
+Dragons
+Family Friendly
+Historical
+Robots
+Quick-Time Events
+Rome
+RPGMaker
+Chess
+Board Game
+Choices Matter
+Great Soundtrack
+JRPG
+Clicker
+Assassin
+Dark Fantasy
+Difficult
+Gore
+MOBA
+Lara Croft
+Early Access
+Mini Golf
+Hidden Object
+3D Platformer
+Psychological
+Nudity
+Visual Novel
+Utilities
+Software
+Design & Illustration
+Memes
+Resource Management
+Card Game
+Trading Card Game
+Management
+Stealth
+Pixel Graphics
+Character Action Game
+VR
+Rhythm
+Character Customization
+Battle Royale
+Football
+Education
+Dark Humor
+Puzzle-Platformer
+Dystopian 
+Base-Building

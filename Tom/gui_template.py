@@ -16,6 +16,7 @@ tempo = []
 percentage = 0
 gen_list = []
 lijst = ['lijst', 'lijst2', 'lijst3']
+tagsdict = {}
 
 # http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid=240&key=AF90EFF02499BB3CDDFFF28629DEA47B&steamid=76561198084867313
 
@@ -39,8 +40,8 @@ game_data_column = [                                        # Alle game data van
     [sg.vtop(sg.Text("Game data will be displayed here:"))],
     [sg.vtop(sg.Listbox(values=game_data, enable_events=True, s=(55,20), expand_x=True, expand_y=True, k='_DATA_'))],
     [sg.vbottom(sg.Text("Game data Graph                                                  ")),
-                (sg.Combo(values=lijst, s=(10,1), k='_GRAPH_'))],
-    [sg.vbottom(sg.Listbox(values=tempo, enable_events=True, s=(55,20),  k='_GRAPH_'))]
+                (sg.Combo(values=lijst, s=(10,1), k='_DROP_'))],
+    [sg.vbottom(sg.Listbox(values=tagsdict, enable_events=True, s=(55,20),  k='_GRAPH_'))]
 ]
 
 layout = [                                                  # volgorde van de layout van links naar rechts
@@ -57,16 +58,12 @@ window.finalize()
 window['_LIST_'].expand(True, True, True)
 #functies
 
-def genres():
-    global steam_id
-    # response_gamedata_url_1 = urlopen(URL1)
-    data1 = open('/steam/Tom/gamesTom.json', 'r')
-    game_list = json.loads(data1.read())
+def genres(game_list):
+    global tagsdict
     steam_json = open('C:/Users/tomno/Documents/GitHub/steam/Tom/steam.json', 'r')
     steam_list = json.loads(steam_json.read())
     genre = open('C:/Users/tomno/Documents/GitHub/steam/Tom/popular_genres.txt', 'r+')
     appidlst = []
-    tagslst = []
     tagsdict = {}
     y=0
     genre_list = []
@@ -91,15 +88,17 @@ def genres():
                             if tag in tagsdict:
                                 tagsdict[tag] = tagsdict[tag] + 1
                             else:
-                                print(tag)
                                 tagsdict[tag] = 1
-                                print(tagsdict[tag])
                                 genre_list.append(tag)
                                 with open('C:/Users/tomno/Documents/GitHub/steam/Tom/popular_genres.txt', 'a') as add_genre:
                                     add_genre.write(f'\n{tag}')
-     
-    
-genres()
+    tagslst = []
+    for key, val in tagsdict.items():
+        key = key.replace(" ", "_")
+        if val >= 1:
+            tagslst.append(f'{val}:     {key}')
+            tagslst.sort(reverse= True)                             
+    window.Element('_GRAPH_').Update(tagslst)
 
 def userinfo(username):         # User info krijgen uit de steam API
     global steam_id
@@ -143,6 +142,7 @@ def gen_data():                 # Algemene Data zoals meest gespeelde games + ti
                     gen_list.append(f'{game["name"]}, {play_time}')
         window.Element('_GENERAL_').Update(gen_list)
         game_info()
+        genres(game_library)
     except KeyError:
         sg.popup_error("Game list not available\n(Maybe multiple users share that name?)")
 
