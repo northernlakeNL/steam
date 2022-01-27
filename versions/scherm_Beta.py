@@ -77,9 +77,8 @@ def graph_values(game_library):
     play_stat = time(game_library)
     for x in play_stat:
         new_x = x.split(';')
-        print(new_x)
         x_axis.append(new_x[0])
-        y_axis.append(new_x[1])
+        y_axis.append(int(new_x[1]))
     plt.xticks(rotation=90)
     plt.barh(x_axis, y_axis, label='Time')
     plt.title("Mosted played games"), plt.xlabel("hours"), plt.ylabel("Games")
