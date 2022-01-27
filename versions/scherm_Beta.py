@@ -68,7 +68,38 @@ def URL3(appid, steam_id):
 def URL4(appid):
     URL4    =   f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     return URL4
-    
+
+def graph_values(game_library):
+    time_list = []
+    x = 0
+    x_axis = ['']                                           #lst van de games
+    y_axis = [0]                                            #lst van de uren
+    for game in game_library["response"]["games"]:
+        if game["playtime_forever"] != 0:
+            time_list.append(game["playtime_forever"])
+            time_list.sort()
+    for x in range(len(time_list)-10, len(time_list)):      # Tijden met games samen voegen voor de lijst
+        for game in game_library["response"]["games"]:
+            if time_list[x] == game["playtime_forever"]:
+                if game["playtime_forever"] >= 60:
+                    hours = (game["playtime_forever"] // 60)               # Minuten in uren zetten
+                    minutes = round(((game["playtime_forever"] // 60) - hours) * 60) # Overige weer terug zetten in minuten
+                    if minutes < 10:
+                        minutes = f'0{minutes}'
+                    play_time = f'{hours}:{minutes}'
+                else:
+                    play_time = game["playtime_forever"]
+                x_axis.append(game["name"])
+                y_axis.append(hours)
+    plt.xticks(rotation=90)
+    plt.barh(x_axis, y_axis, label='Time')
+    plt.title("Mosted played games"), plt.xlabel("hours"), plt.ylabel("Games")
+    plt.ylim(ymin=0)
+    plt.legend()
+    mng = plt.get_current_fig_manager()         #Fullscreen plt show
+    mng.window.state('zoomed')                  #Fullscreen plt show
+    plt.show()
+
 def genres(game_list):
     global tagsdict
     steam_json = open('C:/Users/tomno/Documents/GitHub/steam/Tom/steam.json', 'r')
@@ -140,14 +171,14 @@ def userinfo(username):         # User info krijgen uit de steam API
     global steam_id
     if username.isdecimal():    # kan nu ook volledige steamid invullen (voor brendan enzo)
         steam_id = username
-        gen_data()
+        return print(gen_data())
     else:
         URL = URL1(username)
         response1 = urlopen(URL)
         user_data = json.loads(response1.read())
         if user_data["response"]["success"] == 1:               # User opzoeken
             steam_id = user_data['response']['steamid']
-            gen_data()
+            return print(gen_data())
         else:
             sg.popup_error('User does not exist')
 
@@ -179,6 +210,7 @@ def gen_data():                 # Algemene Data zoals meest gespeelde games + ti
         window.Element('_GENERAL_').Update(gen_list)
         game_info(game_library)
         genres(game_library)
+        return game_library
     except KeyError:
         sg.popup_error("Game list not available\n(Maybe multiple users share that name?)")
 
@@ -190,7 +222,7 @@ def game_info(game_library):            # Alles games van de User verzamelen en 
         game_list.append(game["name"])
         x +=1
     game_list.sort()
-    # graph_values()                                          #Runned graph function
+    # graph_values(game_library)                                          #Runned graph function
     window.Element('_LIST_').Update(game_list)
 
 def achievements(appid, playtime):      # Behaalde achievement percentage van de aangeklikte game verzamalen
@@ -244,9 +276,10 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
 def game_id(name):                      # App ID met playtime opzoeken
     global game_name
     global response2
+    global game_library
     response2 = requests.get(URL2)
-    library = response2.json()
-    for game in library['response']['games']:
+    game_library = response2.json()
+    for game in game_library['response']['games']:
         if name == game['name']:
             spel = game['name']
             game_name = f'game:         {spel}'
@@ -287,6 +320,4 @@ while True:
         game_name = str(app_name[0])
         game_id(game_name)
         window.Element('_DATA_').Update(game_data)
-    if event == '-input-':
-        graph_values()
 window.close()
