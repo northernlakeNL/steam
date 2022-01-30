@@ -7,6 +7,8 @@ import PySimpleGUI as sg
 import json
 from urllib.request import urlopen
 from PySimpleGUI.PySimpleGUI import ProgressBar
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import numpy as np
 import requests
 from matplotlib import pyplot as plt
 # import sshpi
@@ -26,8 +28,8 @@ user_column = [                                             # De eerste Colom wa
      (sg.Button('Search'))
      ],
     [sg.Listbox(values=gen_list, enable_events=True, size=(55,20), k='_GENERAL_')],
-    # [sg.vbottom(sg.Text("Grafiek van je meest gespeelde games"))],
-    # [sg.vbottom(sg.Button("Press", key='-input-'))],
+    [sg.vbottom(sg.Text("Grafiek van je meest gespeelde games"))],
+    [sg.vbottom(sg.Button("Press", key='_TIME_'))],
     ]
 
 file_list_column = [                                        # De gebruikers bibliotheek weergeven met een zoek functie
@@ -43,19 +45,19 @@ game_data_column = [                                        # Alle game data van
 
 #-------------------------------------------------TABS-------------------------------------------------#
 
-tab1_layout = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_TIME_GRAPH_')]]               # Verschillende tabs voor de unieke data
-tab2_layout = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GEN_GRAPH_')]] # GENERAL is een placeholder
-tab3_layout = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
-tab4_layout = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
-tab5_layout = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
-tab6_layout = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
+tab1 = [[sg.Canvas(size=(170, 30), k='_TIME_GRAPH_')]]               # Verschillende tabs voor de unieke data
+tab2 = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GEN_GRAPH_')]] # GENERAL is een placeholder
+tab3 = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
+tab4 = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
+tab5 = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
+tab6 = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
 
-tab_group_layout = [[sg.Tab('Time Graph', tab1_layout, font='Courier 15', key='-TAB1-', expand_x=True),
-                     sg.Tab('Genre Graph', tab2_layout, font='Courier 15', key='-TAB2-', expand_x=True),
-                     sg.Tab('Time per Genre', tab3_layout, font='Courier 15', key='-TAB2-', expand_x=True),
-                     sg.Tab('Achievements per Genre', tab4_layout, font='Courier 15', key='-TAB2-', expand_x=True),
-                     sg.Tab('User Data', tab5_layout, font='Courier 15', key='-TAB2-', expand_x=True),
-                     sg.Tab('CS:GO Stats', tab6_layout, font='Courier 15', key='-TAB2-', expand_x=True),
+tab_group_layout = [[sg.Tab('Time Graph', tab1, font='Courier 15', key='_TIME_GRAPH_', expand_x=True),
+                     sg.Tab('Genre Graph', tab2, font='Courier 15', key='-TAB2-', expand_x=True),
+                     sg.Tab('Time per Genre', tab3, font='Courier 15', key='-TAB2-', expand_x=True),
+                     sg.Tab('Achievements per Genre', tab4, font='Courier 15', key='-TAB2-', expand_x=True),
+                     sg.Tab('User Data', tab5, font='Courier 15', key='-TAB2-', expand_x=True),
+                     sg.Tab('CS:GO Stats', tab6, font='Courier 15', key='-TAB2-', expand_x=True),
                      ]]
 
 #-------------------------------------------------LAYOUT-------------------------------------------------#
@@ -68,8 +70,6 @@ layout = [                                            # volgorde van de layout v
             ]
 
 window = sg.Window("Victis-Victis Add-On", layout, size=(1280, 960), element_justification='center', resizable=True, finalize=True)
-# window.Maximize()
-# window.finalize()
 window['_LIST_'].expand(True, True, True)
 
 
@@ -87,29 +87,7 @@ def URL3(appid, steam_id):
     return URL3
 def URL4(appid):
     URL4    =   f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
-    print(URL4)
     return URL4
-
-def graph_values(game_library):
-    time_list = []
-    x = 0
-    x_axis = ['']                                           #lst van de games
-    y_axis = [0]                                            #lst van de uren
-    play_stat = time(game_library)
-    for x in play_stat:
-        new_x = x.split(';')
-        x_axis.append(new_x[0])
-        y_axis.append(float(new_x[3]))
-    plt.xticks(rotation=90)
-    plt.barh(x_axis, y_axis, label='Time')
-    for i, v in enumerate(y_axis):
-        plt.text(v+0.1, i + 0, str(str(round(int(v), 0))), color='black')
-    plt.title("Mosted played games"), plt.xlabel("hours"), plt.ylabel("Games")
-    plt.ylim(ymin=0)
-    plt.legend()
-    mng = plt.get_current_fig_manager()         #Fullscreen plt show
-    mng.window.state('zoomed')                  #Fullscreen plt show
-    plt.show()
 
 def genres(game_list):
     global tagsdict
@@ -160,7 +138,7 @@ def genres(game_list):
             else:
                 tagslst.append(f'{val}:     {key}')               # waarde toevoegen aan lijst
     tagslst.sort(reverse= True)                      # lijst sorteren van groot naar klein
-    window.Element('_GEN_GRAPH_').Update(tagslst)
+    return tagslst
 
 def time(game_library):
     most_played = []
@@ -208,7 +186,7 @@ def gen_data(game_library):                 # Algemene Data zoals meest gespeeld
             if game["playtime_forever"] != 0:
                 time_list.append(game["playtime_forever"])
                 time_list.sort()
-        for x in range(len(time_list)-10, len(time_list)):      # Tijden met games samen voegen voor de lijst
+        for x in range(len(time_list)-5, len(time_list)):      # Tijden met games samen voegen voor de lijst
             for game in game_library["response"]["games"]:
                 if time_list[x] == game["playtime_forever"]:
                     if game["playtime_forever"] >= 60:
@@ -220,7 +198,7 @@ def gen_data(game_library):                 # Algemene Data zoals meest gespeeld
                     else:
                         play_time = game["playtime_forever"]
                     gen_list.append(f'{game["name"]}, {play_time}')
-        window.Element('_TIME_GRAPH_').Update(gen_list)
+        window.Element('_GENERAL_').Update(gen_list)
         genres(game_library)
         return game_library
     except KeyError:
@@ -228,6 +206,7 @@ def gen_data(game_library):                 # Algemene Data zoals meest gespeeld
 
 def game_info():            # Alles games van de User verzamelen en in een lijst stoppen
     global game_name
+    global game_library
     URL= URL2(steam_id)
     response5 = urlopen(URL)
     game_library = json.loads(response5.read())
@@ -237,11 +216,9 @@ def game_info():            # Alles games van de User verzamelen en in een lijst
         game_list.append(game["name"])
         x +=1
     game_list.sort()
-    gen_data(game_library)
     window.Element('_LIST_').Update(game_list)
 
 def achievements(appid, playtime):      # Behaalde achievement percentage van de aangeklikte game verzamalen
-    global percentage
     global percentage
     URL1= URL3(appid, steam_id)
     URL2= URL4(appid)
@@ -291,10 +268,6 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
 
 def game_id(name):                      # App ID met playtime opzoeken
     global game_name
-    global game_library
-    global game_data
-    response = requests.get(URL2(steam_id))
-    game_library = response.json()
     for game in game_library['response']['games']:
         if name == game['name']:
             spel = game['name']
@@ -309,6 +282,32 @@ def game_id(name):                      # App ID met playtime opzoeken
             else:
                 playtime = f'playtime:     {game["playtime_forever"]}m'
             achievements(app_id, playtime)
+
+def graph_values(game_list):
+    time_list = []
+    x = 0
+    x_axis = ['']                                           #lst van de games
+    y_axis = [0]                                            #lst van de uren
+    play_stat = time(game_list)
+    for x in play_stat:
+        new_x = x.split(';')
+        x_axis.append(new_x[0])
+        y_axis.append(float(new_x[3]))
+    plt.xticks(rotation=90)
+    plt.barh(x_axis, y_axis, label='Time')
+    for i, v in enumerate(y_axis):
+        plt.text(v+0.1, i + 0, str(str(round(int(v), 0))), color='black')
+    plt.title("Mosted played games"), plt.xlabel("hours"), plt.ylabel("Games")
+    plt.ylim(ymin=0)
+    plt.legend()
+    fig = plt.gcf()     # een afbeelding maken van de grafiek
+    return fig
+
+def draw(canvas, figure):
+    canvas_fig = FigureCanvasTkAgg(figure, canvas)
+    canvas_fig.draw()
+    canvas_fig.get_tk_widget().pack(side='top', fill='both', expand=1)      # de grafiek tekenen
+    return canvas_fig
 
 #-------------------------------------------------value activaties-------------------------------------------------#
 
@@ -328,13 +327,13 @@ while True:
         else:
             last_list = [x for x in game_list if last_search in x]
         last_search = search
-        print(last_list)
         window.Element('_LIST_').update(last_list)
     if event == '_LIST_':                           # Library in de GUI verwerken
         app_name = values['_LIST_']
         game_name = str(app_name[0])
         game_id(game_name)
         window.Element('_DATA_').Update(game_data)
-    if event == '_TIME_GRAPH_':
-        graph_values(game_data)
+    if event == '_TIME_':
+        fig = graph_values(game_library)
+        draw(window['_TIME_GRAPH_'].TKCanvas, fig)
 window.close()
