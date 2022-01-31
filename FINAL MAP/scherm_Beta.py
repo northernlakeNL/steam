@@ -104,7 +104,7 @@ def genres(game_list):
     global tagsdict
     steam_json = open('steam.json', 'r')            # steam json lijst
     steam_list = json.loads(steam_json.read())
-    genre = open('popular_genres.txt', 'r+')        # lijst met genre/tags
+    genre = open('FINAL MAP\popular_genres.txt', 'r+')        # lijst met genre/tags
     appidlst = []
     tagsdict = {}
     y=0
