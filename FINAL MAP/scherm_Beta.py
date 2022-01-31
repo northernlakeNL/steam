@@ -14,7 +14,6 @@ import requests
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.pyplot import Figure
-from github import Github
 # import sshpi
 
 #-------------------------------------------------PRE-VALUES-------------------------------------------------#
@@ -91,7 +90,9 @@ def URL4(appid):                            # Alle achievements opvragen
     URL    =   f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     return URL
 
-def Tags(game_list):              # Tags van de gebruiker uitzoeken
+
+#--------Data Functies--------#
+def Tags(game_list):                # Tags van de gebruiker uitzoeken
     global tagsdict
     steam_json = open('FINAL MAP\steam.json', 'r')            # steam json lijst
     steam_list = json.loads(steam_json.read())
@@ -142,7 +143,7 @@ def Tags(game_list):              # Tags van de gebruiker uitzoeken
     tagslst.sort()                      # lijst sorteren van groot naar klein
     return tagslst
 
-def time(game_library):
+def time(game_library):             # play time bepalen per game
     most_played = []
     time_list = []
     for game in game_library["response"]["games"]:
@@ -285,8 +286,32 @@ def game_id(name):                      # App ID met playtime opzoeken
                 playtime = f'playtime:     {game["playtime_forever"]}m'
             achievements(app_id, playtime)
 
-#--------Grafieken maken--------#
+# def genre_achievements():
+#     appid_lst = []
+#     dictdict = {}
+#     tempdict = {}
+#     gen_lst = []
+#     steam_json = open('FINAL MAP\steam.json', 'r')  
+#     steam_list = json.loads(steam_json.read())
+#     genre = open('FINAL MAP\popular_genres.txt', 'r+') 
+#     game_json = open('Tom\gamesTom.json', 'r')
+#     game_list = json.loads(game_json.read())
+#     for y in game_list['response']['games']:
+#         if y['playtime_forever'] > 0:
+#             appid_lst.append(y['appid'])
+#         for x in steam_list:
+#             if y['name'] == x['name']:
+                
+    
+#     for x in appid_lst:
+#         URL = URL3(x, steam_id)
+#         response5 = urlopen(URL)
+#         achievments = json.loads(response5.read())
+#         for i in achievments['playerstats']['achievements']:
+#             print(i)
+#     print(tempdict)
 
+#--------Grafieken Functies--------#
 def graph_values(game_list):            #grafiek 1e tab
     time_list = []
     x = 0
@@ -303,7 +328,7 @@ def graph_values(game_list):            #grafiek 1e tab
     plt.barh(x_axis, y_axis, label='Time')
     for i, v in enumerate(y_axis):
         if i > 0:                                           # als de waarde groter is dan 0 tekst toevoegen
-            plt.text(v+0.1, i + 0, str(f'-{str(round(int(v), 0))}'), color='black')
+            plt.text(v+0.1, i + 0, str(f'  {str(round(int(v), 0))}'), color='black')
     plt.title("Mosted played games"), plt.xlabel("hours"), plt.ylabel("Games")      # labels voor de grafiek maken
     plt.ylim(ymin=0)
     plt.legend()
@@ -384,7 +409,7 @@ def graph_genre_time(game_list):            #grafiek 3e tab
     plt.barh(x_axis, y_axis, label='Time')
     for i, v in enumerate(y_axis):
         if i > 0:                                           # als de waarde groter is dan 0 tekst toevoegen
-            plt.text(v+0.1, i + 0, str(f'-{str(round(int(v), 0))}'), color='black')
+            plt.text(v+0.1, i + 0, str(f'  {str(round(int(v), 0))}'), color='black')
     plt.title("Mosted played Genres"), plt.xlabel("hours"), plt.ylabel("Genre")      # labels voor de grafiek maken
     plt.ylim(ymin=0)
     plt.legend()
@@ -436,7 +461,7 @@ def csgo():            #grafiek 5e tab
     plt.barh(lst_stats,lst_values, label='Value')
     for i, v in enumerate(lst_values):
         if i > 0:                                           # als de waarde groter is dan 0 tekst toevoegen
-            plt.text(v+0.1, i + 0, str(f'-{str(round(int(v), 0))}'), color='black')
+            plt.text(v+0.1, i + 0, str(f'  {str(round(int(v), 0))}'), color='black')
     plt.title("CS:GO stats"), plt.xlabel("Value"), plt.ylabel("Stats")
     plt.ylim(ymin=0)
     plt.legend()
@@ -480,6 +505,7 @@ while True:
         draw(window['_GEN_GRAPH_'].TKCanvas, fig2)
         fig3 = graph_genre_time(game_library)
         draw(window['_Time_GEN_'].TKCanvas, fig3)
+        # fig4 = genre_achievements()
         fig5 = csgo()
         draw(window['_CSGO_'].TKCanvas, fig5)
 window.close()
