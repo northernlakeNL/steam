@@ -94,17 +94,17 @@ def URL5():
     URL     =  f''
 
 def graph_genre_time(game_library):
-    steam_json = open('C:/Users/tomno/Documents/GitHub/steam/Tom/steam.json', 'r')
+    steam_json = open('steam.json', 'r')
     steam_list = json.loads(steam_json.read())
-    genre = open('C:/Users/tomno/Documents/GitHub/steam/Tom/popular_genres.txt', 'r+')
+    genre = open('popular_genres.txt', 'r+')
     for game in game_library:
         print(game)
 
 def genres(game_list):
     global tagsdict
-    steam_json = open('C:/Users/tomno/Documents/GitHub/steam/Tom/steam.json', 'r')            # steam json lijst
+    steam_json = open('steam.json', 'r')            # steam json lijst
     steam_list = json.loads(steam_json.read())
-    genre = open('C:/Users/tomno/Documents/GitHub/steam/Tom/popular_genres.txt', 'r+')        # lijst met genre/tags
+    genre = open('popular_genres.txt', 'r+')        # lijst met genre/tags
     appidlst = []
     tagsdict = {}
     y=0
