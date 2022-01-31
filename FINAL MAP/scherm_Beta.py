@@ -78,31 +78,31 @@ window['_LIST_'].expand(True, True, True)
 #-------------------------------------------------FUNCTIONS-------------------------------------------------#
 
 #--------URL Functies--------#
-def URL1(username):
+def URL1(username):                         # User ID opvragen
     URL1    =   f'http://api.steampowered.com/ISteamUser/ResolveVanityURL/v0001/?key={API_key}&vanityurl={username}'
     return URL1
-def URL2(steam_id):
+def URL2(steam_id):                         # Games Opvragen
     URL2    =   f"http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={API_key}&steamid={steam_id}&format=json&include_appinfo=1"
     return URL2
-def URL3(appid, steam_id):
+def URL3(appid, steam_id):                  # User stats van een game opvragen
     URL3    =   f'http://api.steampowered.com/ISteamUserStats/GetUserStatsForGame/v0002/?appid={appid}&key={API_key}&steamid={steam_id}'
     return URL3
-def URL4(appid):
+def URL4(appid):                            # Alle achievements opvragen
     URL4    =   f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     return URL4
 def URL5():
     URL     =  f''
 
-def graph_genre_time(game_library):
-    steam_json = open('steam.json', 'r')
-    steam_list = json.loads(steam_json.read())
-    genre = open('popular_genres.txt', 'r+')
-    for game in game_library:
-        print(game)
+# def graph_genre_time(game_library):
+#     steam_json = open('FINAL MAP\steam.json', 'r')
+#     steam_list = json.loads(steam_json.read())
+#     genre = open('FINAL MAP\popular_genres.txt', 'r+')
+#     for game in game_library:
+#         if game["response"]["games"]
 
 def genres(game_list):
     global tagsdict
-    steam_json = open('steam.json', 'r')            # steam json lijst
+    steam_json = open('FINAL MAP\steam.json', 'r')            # steam json lijst
     steam_list = json.loads(steam_json.read())
     genre = open('FINAL MAP\popular_genres.txt', 'r+')        # lijst met genre/tags
     appidlst = []
