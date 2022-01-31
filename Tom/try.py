@@ -307,7 +307,7 @@ def graph_values(game_list):
         plt.text(v+0.1, i + 0, str(str(round(int(v), 0))), color='black')
     plt.title("Mosted played games"), plt.xlabel("hours"), plt.ylabel("Games")
     plt.ylim(ymin=0)
-    plt.legend(loc='center')
+    plt.legend
     figsize = (12.5, 5.5)
     figu = matplotlib.figure.Figure(figsize=figsize)
     fig = plt.gcf()     # een afbeelding maken van de grafiek
