@@ -7,10 +7,14 @@ import PySimpleGUI as sg
 import json
 from urllib.request import urlopen
 from PySimpleGUI.PySimpleGUI import ProgressBar
-from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+import matplotlib
+from matplotlib.figure import Figure
 import numpy as np
 import requests
 from matplotlib import pyplot as plt
+from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+from matplotlib.pyplot import Figure
+from github import Github
 # import sshpi
 
 #-------------------------------------------------PRE-VALUES-------------------------------------------------#
@@ -25,11 +29,9 @@ gen_list = []
 user_column = [                                             # De eerste Colom waar de gebruikersnaam kan worden ingevuld en de algemen data komt
     [(sg.Text('Username: ')),
      (sg.Input(size=(25,20), key='_USER_')),
-     (sg.Button('Search'))
+     (sg.Button('Search', key='_SEARCH_'))
      ],
-    [sg.Listbox(values=gen_list, enable_events=True, size=(55,20), k='_GENERAL_')],
-    [sg.vbottom(sg.Text("Grafiek van je meest gespeelde games"))],
-    [sg.vbottom(sg.Button("Press", key='_TIME_'))],
+    [sg.Listbox(values=gen_list, enable_events=True, size=(55,20), k='_GENERAL_')]
     ]
 
 file_list_column = [                                        # De gebruikers bibliotheek weergeven met een zoek functie
@@ -45,19 +47,19 @@ game_data_column = [                                        # Alle game data van
 
 #-------------------------------------------------TABS-------------------------------------------------#
 
-tab1 = [[sg.Canvas(size=(170, 30), k='_TIME_GRAPH_')]]               # Verschillende tabs voor de unieke data
-tab2 = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GEN_GRAPH_')]] # GENERAL is een placeholder
-tab3 = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
-tab4 = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
-tab5 = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
-tab6 = [[sg.Listbox(values=gen_list, enable_events=True, size=(170,30), k='_GENERAL_')]]
+tab1 = [[sg.Canvas(size=(200, 40), k='_TIME_GRAPH_')]]               # Verschillende tabs voor de unieke data
+tab2 = [[sg.Canvas(size=(200,40), k='_GEN_GRAPH_')]] # GENERAL is een placeholder
+tab3 = [[sg.Listbox(values=gen_list, enable_events=True, size=(200,40), k='_GENERAL_')]]
+tab4 = [[sg.Listbox(values=gen_list, enable_events=True, size=(200,40), k='_GENERAL_')]]
+tab5 = [[sg.Listbox(values=gen_list, enable_events=True, size=(200,40), k='_GENERAL_')]]
+tab6 = [[sg.Canvas(size=(200,40), k='_CSGO_')]]
 
 tab_group_layout = [[sg.Tab('Time Graph', tab1, font='Courier 15', key='_TIME_GRAPH_', expand_x=True),
-                     sg.Tab('Genre Graph', tab2, font='Courier 15', key='-TAB2-', expand_x=True),
+                     sg.Tab('Genre Graph', tab2, font='Courier 15', key='_GEN_GRAPH_', expand_x=True),
                      sg.Tab('Time per Genre', tab3, font='Courier 15', key='-TAB2-', expand_x=True),
                      sg.Tab('Achievements per Genre', tab4, font='Courier 15', key='-TAB2-', expand_x=True),
                      sg.Tab('User Data', tab5, font='Courier 15', key='-TAB2-', expand_x=True),
-                     sg.Tab('CS:GO Stats', tab6, font='Courier 15', key='-TAB2-', expand_x=True),
+                     sg.Tab('CS:GO Stats', tab6, font='Courier 15', key='_CSGO_', expand_x=True),
                      ]]
 
 #-------------------------------------------------LAYOUT-------------------------------------------------#
@@ -69,7 +71,9 @@ layout = [                                            # volgorde van de layout v
             [sg.TabGroup(layout= tab_group_layout, enable_events=True,)]
             ]
 
-window = sg.Window("Victis-Victis Add-On", layout, size=(1280, 960), element_justification='center', resizable=True, finalize=True)
+window = sg.Window("Victis-Victis Add-On", layout, size=(1380, 960), element_justification='center', resizable=True, finalize=True)
+window.Maximize()
+window.finalize()
 window['_LIST_'].expand(True, True, True)
 
 
@@ -88,6 +92,15 @@ def URL3(appid, steam_id):
 def URL4(appid):
     URL4    =   f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     return URL4
+def URL5():
+    URL     =  f''
+
+def graph_genre_time(game_library):
+    steam_json = open('C:/Users/tomno/Documents/GitHub/steam/Tom/steam.json', 'r')
+    steam_list = json.loads(steam_json.read())
+    genre = open('C:/Users/tomno/Documents/GitHub/steam/Tom/popular_genres.txt', 'r+')
+    for game in game_library:
+        print(game)
 
 def genres(game_list):
     global tagsdict
@@ -129,15 +142,15 @@ def genres(game_list):
         if val >= 1:
             if val <10:
                 val = f'00{val}'               # als de waarde lager dan 10 is een 0 voor het cijfer toevoegen
-                tagslst.append(f'{val}:     {key}')               # nieuwe waare toeveoegen in lijst
+                tagslst.append(f'{val};{key}')               # nieuwe waare toeveoegen in lijst
                 tagslst.sort(reverse= True)
             elif val >= 10 and val < 100:
                 val = f'0{val}'               # als de waarde lager dan 10 is een 0 voor het cijfer toevoegen
-                tagslst.append(f'{val}:     {key}')               # nieuwe waare toeveoegen in lijst
+                tagslst.append(f'{val};{key}')               # nieuwe waare toeveoegen in lijst
                 tagslst.sort(reverse= True)           
             else:
-                tagslst.append(f'{val}:     {key}')               # waarde toevoegen aan lijst
-    tagslst.sort(reverse= True)                      # lijst sorteren van groot naar klein
+                tagslst.append(f'{val};{key}')               # waarde toevoegen aan lijst
+    tagslst.sort()                      # lijst sorteren van groot naar klein
     return tagslst
 
 def time(game_library):
@@ -161,7 +174,7 @@ def time(game_library):
                     most_played.append(f'{name};{game["playtime_forever"]}') 
     return most_played
 
-def userinfo(username):         # User info krijgen uit de steam API
+def userID(username):         # User info krijgen uit de steam API
     global steam_id
     if username.isdecimal():    # kan nu ook volledige steamid invullen (voor brendan enzo)
         steam_id = username
@@ -200,7 +213,7 @@ def gen_data(game_library):                 # Algemene Data zoals meest gespeeld
                     gen_list.append(f'{game["name"]}, {play_time}')
         window.Element('_GENERAL_').Update(gen_list)
         genres(game_library)
-        return game_library
+        return gen_list
     except KeyError:
         sg.popup_error("Game list not available\n(Maybe multiple users share that name?)")
 
@@ -293,6 +306,9 @@ def graph_values(game_list):
         new_x = x.split(';')
         x_axis.append(new_x[0])
         y_axis.append(float(new_x[3]))
+
+    plt.figure(figsize=(15, 7))
+    plt.tick_params(axis='y', which='major', labelsize=6)
     plt.xticks(rotation=90)
     plt.barh(x_axis, y_axis, label='Time')
     for i, v in enumerate(y_axis):
@@ -302,6 +318,84 @@ def graph_values(game_list):
     plt.legend()
     fig = plt.gcf()     # een afbeelding maken van de grafiek
     return fig
+
+def graph_genre(game_library):
+    x = 0
+    x_axis = ['']                                           #lst van de games
+    y_axis = [0]                                            #lst van de uren
+    genre_list = genres(game_library)
+    for x in genre_list[-10:]:
+        new_x = x.split(';')
+        x_axis.append(new_x[1])
+        y_axis.append(float(new_x[0]))
+    plt.figure(figsize=(15, 7))
+    plt.tick_params(axis='y', which='major', labelsize=6)
+    plt.xticks(rotation=90)
+    plt.barh(x_axis, y_axis, label='Genre')
+    for i, v in enumerate(y_axis):
+        plt.text(v+0.1, i + 0, str(str(round(int(v), 0))), color='black')
+    plt.title("Most Owned Genre"), plt.xlabel("Amount"), plt.ylabel("Genre")
+    plt.ylim(ymin=0)
+    plt.legend()
+    fig = plt.gcf()     # een afbeelding maken van de grafiek
+    return fig
+
+def csgo():
+    lst_stats = []
+    lst_values = []
+    kd = []
+    winrate = []
+    dictdict = {}
+    URL = URL3(730, steam_id)
+    response_csgo_stats = urlopen(URL)
+    csgo_stats = json.loads(response_csgo_stats.read())
+    for stats in csgo_stats['playerstats']['stats']:
+        stats_all = stats['name']
+        values_all = stats['value']
+        if stats_all == 'total_kills':
+            kd.append(values_all)
+        elif stats_all == 'total_deaths':
+            kd.append(values_all)
+        elif stats_all == 'total_kills_ak47':
+            lst_stats.append(stats_all)
+            lst_values.append(values_all)
+        elif stats_all == 'total_kills_m4a1':
+            lst_stats.append(stats_all)
+            lst_values.append(values_all)
+        elif stats_all == 'total_kills_awp':
+            lst_stats.append(stats_all)
+            lst_values.append(values_all)
+        elif stats_all == 'total_matches_played':
+            lst_stats.append(stats_all)
+            lst_values.append(values_all)
+            winrate.append(values_all)
+        elif stats_all == 'total_matches_won':
+            lst_stats.append(stats_all)
+            lst_values.append(values_all)
+            winrate.append(values_all)
+    kd_ratio = round(100*(kd[0]/kd[1]))
+    winrate_ratio = round(100*(winrate[0]/winrate[1]))
+    lst_stats.append('Kill/Death Ratio in procent')
+    lst_values.append(kd_ratio)
+    lst_stats.append('Win/Loss Ratio in procent')
+    lst_values.append(winrate_ratio)
+
+    plt.figure(figsize=(15, 7))
+    plt.tick_params(axis='y', which='major', labelsize=6)
+    plt.xticks(rotation=90)
+    plt.barh(lst_stats,lst_values, label='Time')
+    for i, v in enumerate(lst_values):
+        plt.text(v+0.1, i + 0, str(str(round(int(v), 0))), color='black')
+    plt.title("Mosted played games"), plt.xlabel("hours"), plt.ylabel("Games")
+    plt.ylim(ymin=0)
+    plt.legend()
+    fig = plt.gcf()     # een afbeelding maken van de grafiek
+    return fig  
+
+    # plt.xticks(rotation=90)
+    # plt.title("CS:GO Playerstats"), plt.xlabel("Stats"), plt.ylabel("Waarden")
+    # plt.bar(lst_stats,lst_values)
+    # plt.show()
 
 def draw(canvas, figure):
     canvas_fig = FigureCanvasTkAgg(figure, canvas)
@@ -319,7 +413,7 @@ while True:
         break
     if values['_USER_'].strip() != '' and ' ' not in values['_USER_'].strip():                      # User opzoeken
         username= values['_USER_']
-        game_data = userinfo(username)
+        game_data = userID(username)
     if values['_INPUT_'] != '':                     # Live search in library
         search = values['_INPUT_']
         if search.startswith(last_search):
@@ -333,7 +427,11 @@ while True:
         game_name = str(app_name[0])
         game_id(game_name)
         window.Element('_DATA_').Update(game_data)
-    if event == '_TIME_':
-        fig = graph_values(game_library)
-        draw(window['_TIME_GRAPH_'].TKCanvas, fig)
+    if event == '_SEARCH_':
+        fig1 = graph_values(game_library)
+        draw(window['_TIME_GRAPH_'].TKCanvas, fig1)
+        fig2 = graph_genre(game_library)
+        draw(window['_GEN_GRAPH_'].TKCanvas, fig2)
+        fig3 = csgo()
+        draw(window['_CSGO_'].TKCanvas, fig3)
 window.close()

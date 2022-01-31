@@ -6,7 +6,7 @@ import PySimpleGUI as sg
 
 
 matplotlib.use('TkAgg')
-w, h = figsize = (15, 9)     # figure size
+w, h = figsize = (12.5, 5.5)     # figure size
 fig = matplotlib.figure.Figure(figsize=figsize)
 dpi = fig.get_dpi()
 size = (w*dpi, h*dpi)       # canvas size
