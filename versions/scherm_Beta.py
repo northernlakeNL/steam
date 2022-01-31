@@ -51,15 +51,13 @@ tab1 = [[sg.Canvas(size=(200, 40), k='_TIME_GRAPH_')]]               # Verschill
 tab2 = [[sg.Canvas(size=(200,40), k='_GEN_GRAPH_')]] # GENERAL is een placeholder
 tab3 = [[sg.Listbox(values=gen_list, enable_events=True, size=(200,40), k='_GENERAL_')]]
 tab4 = [[sg.Listbox(values=gen_list, enable_events=True, size=(200,40), k='_GENERAL_')]]
-tab5 = [[sg.Listbox(values=gen_list, enable_events=True, size=(200,40), k='_GENERAL_')]]
-tab6 = [[sg.Canvas(size=(200,40), k='_CSGO_')]]
+tab5 = [[sg.Canvas(size=(200,40), k='_CSGO_')]]
 
 tab_group_layout = [[sg.Tab('Time Graph', tab1, font='Courier 15', key='_TIME_GRAPH_', expand_x=True),
                      sg.Tab('Genre Graph', tab2, font='Courier 15', key='_GEN_GRAPH_', expand_x=True),
                      sg.Tab('Time per Genre', tab3, font='Courier 15', key='-TAB2-', expand_x=True),
                      sg.Tab('Achievements per Genre', tab4, font='Courier 15', key='-TAB2-', expand_x=True),
-                     sg.Tab('User Data', tab5, font='Courier 15', key='-TAB2-', expand_x=True),
-                     sg.Tab('CS:GO Stats', tab6, font='Courier 15', key='_CSGO_', expand_x=True),
+                     sg.Tab('CS:GO Stats', tab5, font='Courier 15', key='_CSGO_', expand_x=True),
                      ]]
 
 #-------------------------------------------------LAYOUT-------------------------------------------------#
@@ -341,8 +339,8 @@ def graph_genre(game_library):
     return fig
 
 def csgo():
-    lst_stats = []
-    lst_values = []
+    lst_stats = ['']
+    lst_values = [0]
     kd = []
     winrate = []
     dictdict = {}
@@ -379,23 +377,17 @@ def csgo():
     lst_values.append(kd_ratio)
     lst_stats.append('Win/Loss Ratio in procent')
     lst_values.append(winrate_ratio)
-
     plt.figure(figsize=(15, 7))
     plt.tick_params(axis='y', which='major', labelsize=6)
     plt.xticks(rotation=90)
-    plt.barh(lst_stats,lst_values, label='Time')
+    plt.barh(lst_stats,lst_values, label='Value')
     for i, v in enumerate(lst_values):
         plt.text(v+0.1, i + 0, str(str(round(int(v), 0))), color='black')
-    plt.title("Mosted played games"), plt.xlabel("hours"), plt.ylabel("Games")
+    plt.title("CS:GO stats"), plt.xlabel("Value"), plt.ylabel("Stats")
     plt.ylim(ymin=0)
     plt.legend()
     fig = plt.gcf()     # een afbeelding maken van de grafiek
     return fig  
-
-    # plt.xticks(rotation=90)
-    # plt.title("CS:GO Playerstats"), plt.xlabel("Stats"), plt.ylabel("Waarden")
-    # plt.bar(lst_stats,lst_values)
-    # plt.show()
 
 def draw(canvas, figure):
     canvas_fig = FigureCanvasTkAgg(figure, canvas)
