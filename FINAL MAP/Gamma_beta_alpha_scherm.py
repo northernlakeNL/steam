@@ -16,9 +16,6 @@ from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.pyplot import Figure
 # import sshpi
 
-file_types = [("JPEG (*.jpg)", "*.jpg"),
-              ("All files (*.*)", "*.*")]
-
 #-------------------------------------------------PRE-VALUES-------------------------------------------------#
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 game_list = []
@@ -33,7 +30,7 @@ user_column = [                                             # De eerste Colom wa
      (sg.Input(size=(25,20), key='_USER_')),
      (sg.Button('Search', key='_SEARCH_'))
      ],
-    [sg.Listbox(values=user_data_lst, enable_events=True, size=(55,10), k='_GENERAL_')]
+    [sg.Listbox(values=gen_list, enable_events=True, size=(55,10), k='_GENERAL_')]
     ]
 
 file_list_column = [                                        # De gebruikers bibliotheek weergeven met een zoek functie
@@ -49,16 +46,14 @@ game_data_column = [                                        # Alle game data van
 
 #-------------------------------------------------TABS-------------------------------------------------#
 
-tab1 = [[sg.Canvas(size=(200, 40), k='_TIME_GRAPH_')]]               # Verschillende tabs voor de unieke data
-tab2 = [[sg.Canvas(size=(200,40), k='_GEN_GRAPH_')]] # GENERAL is een placeholder
-tab3 = [[sg.Canvas(size=(200,40), k='_Time_GEN_')]]
-tab4 = [[sg.Listbox(values=gen_list, enable_events=True, size=(200,40), k='_GENERAL_')]]
-tab5 = [[sg.Canvas(size=(200,40), k='_CSGO_')]]
+tab1 = [[sg.Canvas(size=(1250,600), k='_TIME_GRAPH_')]]               # Verschillende tabs voor de unieke data
+tab2 = [[sg.Canvas(size=(1250,600), k='_GEN_GRAPH_')]] # GENERAL is een placeholder
+tab3 = [[sg.Canvas(size=(1250,600), k='_Time_GEN_')]]
+tab5 = [[sg.Canvas(size=(1250,600), k='_CSGO_')]]
 
 tab_group_layout = [[sg.Tab('Time Graph', tab1, font='Courier 15', key='_TIME_GRAPH_', expand_x=True),
                      sg.Tab('Genre Graph', tab2, font='Courier 15', key='_GEN_GRAPH_', expand_x=True),
                      sg.Tab('Time per Genre', tab3, font='Courier 15', key='_Time_GEN_', expand_x=True),
-                     sg.Tab('Achievements per Genre', tab4, font='Courier 15', key='-TAB2-', expand_x=True),
                      sg.Tab('CS:GO Stats', tab5, font='Courier 15', key='_CSGO_', expand_x=True),
                      ]]
 
@@ -70,7 +65,6 @@ layout = [                                            # volgorde van de layout v
              sg.Frame(layout= game_data_column, title='', border_width=0, vertical_alignment='top'),],
             [sg.TabGroup(layout= tab_group_layout, enable_events=True,)]
             ]
-
 
 window = sg.Window("Victis-Victis Add-On", layout, size=(1380, 960), element_justification='center', resizable=True, finalize=True)
 window.Maximize()
@@ -105,6 +99,7 @@ def URL7():
 def URL8():
     URL    = f'https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key={API_key}&steamids={steam_id}'
     return URL 
+
 
 #--------Data Functies--------#
 def append():
@@ -170,7 +165,6 @@ def playersumaries():
     lst.append(steam_player_name)
     lst.append(land)
     return lst
-
 
 def Tags(game_list):                # Tags van de gebruiker uitzoeken
     global tagsdict
@@ -589,9 +583,4 @@ while True:
         # fig4 = genre_achievements()
         fig5 = csgo()
         draw(window['_CSGO_'].TKCanvas, fig5)
-        # fig6 = friendlst()
-        # fig7 = playersumaries()
-        # fig8 = recently_played()
-        # fig9 = userbanned()
 window.close()
-# window_background.close()
