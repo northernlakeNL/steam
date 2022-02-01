@@ -13,14 +13,16 @@ def ledbalk(voortgang):  # voortgang is % achievements
         "lol"
 
 
-def vrienddisplay(naam):  # naam is naam :)
+def gamedisplay(game, account):  # game is game naam, account is account naanm
     try:
         with Connection('dnsmies.ooguy.com', user='pi', connect_kwargs={"password": "Roots"}) as c:
             PID = c.run('pgrep -f friend.py', warn=True, hide=True).stdout.strip()
             if PID:
                 c.run(f'kill {PID}', warn=True)
         with Connection('dnsmies.ooguy.com', user='pi', connect_kwargs={"password": "Roots"}) as c:
-            c.run(f'python3 /home/pi/hd44780/friend.py -n "{naam}"')
+            c.run(f'python3 /home/pi/hd44780/game.py -g "{game}" -a {account}')
     except TimeoutError:
         "lol"
 
+
+gamedisplay("league of legends (real steam port)", "ultragamer")
