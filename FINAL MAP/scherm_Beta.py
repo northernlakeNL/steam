@@ -95,9 +95,9 @@ def URL4(appid):                            # Alle achievements opvragen
 #--------Data Functies--------#
 def Tags(game_list):                # Tags van de gebruiker uitzoeken
     global tagsdict
-    steam_json = open('steam.json', 'r')            # steam json lijst
+    steam_json = open('FINAL MAP\steam.json', 'r')            # steam json lijst
     steam_list = json.loads(steam_json.read())
-    genre = open('popular_genres.txt', 'r+')        # lijst met genre/tags
+    genre = open('FINAL MAP\popular_genres.txt', 'r+')        # lijst met genre/tags
     appidlst = []
     tagsdict = {}
     y=0
@@ -252,10 +252,7 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
                 game_data.append(playtime)
                 game_data.append(percentage)
                 window.Element('_DATA_').Update(game_data)
-<<<<<<< HEAD
             threading.Thread(target=sshpi.gamedisplay, args=(game_name[14:], uname, 1)).start()
-=======
->>>>>>> f72c575f83dc5f9b9959197ea50c4da490f245f2
             threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
         if response3 == 400:                                # Response code check (negatief)
             window.Element('_DATA_').Update('')
@@ -359,9 +356,9 @@ def graph_genre(game_library):            #grafiek 2e tab
     return fig
 
 def graph_genre_time(game_list):            #grafiek 3e tab
-    steam_json = open('steam.json', 'r')
+    steam_json = open('FINAL MAP\steam.json', 'r')
     steam_list = json.loads(steam_json.read())
-    genre = open('popular_genres.txt', 'r+')
+    genre = open('FINAL MAP\popular_genres.txt', 'r+')
     genre_dict = {}
     genre_dict.clear()
     time_list= []
