@@ -26,15 +26,14 @@ game_data = []
 tempo = []
 percentage = 0
 gen_list = []
-
+user_data_lst = []
 #-------------------------------------------------COLUMNS-------------------------------------------------#
 user_column = [                                             # De eerste Colom waar de gebruikersnaam kan worden ingevuld en de algemen data komt
     [(sg.Text('Username: ')),
      (sg.Input(size=(25,20), key='_USER_')),
      (sg.Button('Search', key='_SEARCH_'))
      ],
-    [sg.Listbox(values=gen_list, enable_events=True, size=(55,10), k='_GENERAL_')],
-    [sg.Image(key="-IMAGE-")]
+    [sg.Listbox(values=user_data_lst, enable_events=True, size=(55,10), k='_GENERAL_')]
     ]
 
 file_list_column = [                                        # De gebruikers bibliotheek weergeven met een zoek functie
@@ -104,15 +103,29 @@ def URL7():
     return URL
 def URL8():
     URL    = f'https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key={API_key}&steamids={steam_id}'
-    print(URL)
     return URL 
 
 #--------Data Functies--------#
+def append():
+    x = userbanned()
+    y = recently_played()
+    z = friendlst()
+    u = playersumaries()
+
+    user_data_lst.append(f'Steam persona name:              {u[0]}')
+    user_data_lst.append(f'Country code:                          {u[1]}')
+    user_data_lst.append(f'How many friends on steam:     {z}')
+    user_data_lst.append(f'Hours played last 2 weeks:       {y}')
+    user_data_lst.append(f'vacbans:                                 {x}')
+
+    window.Element('_GENERAL_').update(user_data_lst)
+
 def userbanned():
     userbanned_json = urlopen(URL8())
     userbanned = json.loads(userbanned_json.read())
     for x in userbanned['players']:
-        print(x['NumberOfVACBans'])
+        print(f'GameBans: {x["NumberOfVACBans"]}')
+    return x["NumberOfVACBans"]
 
 def recently_played():
     recently_played_json =  urlopen(URL7())
@@ -123,7 +136,8 @@ def recently_played():
             game_per_2_weeks = x['playtime_2weeks']
             totaltime = game_per_2_weeks + totaltime
     uren = round(totaltime/60)
-    print(uren)
+    print(f'Hours played last 2 weeks: {uren}')
+    return uren
     
 
 def friendlst():
@@ -133,9 +147,11 @@ def friendlst():
     for x in friend['friendslist']['friends']:
         if x['relationship'] == 'friend':
             friends = friends + 1
-    print(friends)
+    print(f'How many friends on steam: {friends}')
+    return friends
 
 def playersumaries():
+    lst = []
     playersumary_json = urlopen(URL6())
     playersumary = json.loads(playersumary_json.read())
     for x in playersumary['response']['players']:
@@ -148,13 +164,13 @@ def playersumaries():
     # response.raw.decode_content = True
     # img_box = sg.Image(data=response.raw.read())
     # window.Element('_image_').update(img_box)
-    print(url)
-    print(steam_player_name)
-    print(land)
+    print(f'url avatar: {url}')
+    print(f'Steam persona name: {steam_player_name}')
+    print(f'Land:{land}')
+    lst.append(steam_player_name)
+    lst.append(land)
+    return lst
 
-
-
-            
 
 def Tags(game_list):                # Tags van de gebruiker uitzoeken
     global tagsdict
@@ -563,6 +579,7 @@ while True:
         game_id(game_name)
         window.Element('_DATA_').Update(game_data)
     if event == '_SEARCH_':
+        append()
         fig1 = graph_values(game_library)
         draw(window['_TIME_GRAPH_'].TKCanvas, fig1)
         fig2 = graph_genre(game_library)
@@ -572,8 +589,8 @@ while True:
         # fig4 = genre_achievements()
         fig5 = csgo()
         draw(window['_CSGO_'].TKCanvas, fig5)
-        fig6 = friendlst()
-        fig7 = playersumaries()
-        fig8 = recently_played()
-        fig9 = userbanned()
+        # fig6 = friendlst()
+        # fig7 = playersumaries()
+        # fig8 = recently_played()
+        # fig9 = userbanned()
 window.close()
