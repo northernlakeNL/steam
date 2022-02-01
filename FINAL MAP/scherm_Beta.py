@@ -4,6 +4,7 @@ from nturl2path import url2pathname
 import threading
 from turtle import xcor
 import PySimpleGUI as sg
+import PySimpleGUIQt as sgq
 import json
 from urllib.request import urlopen
 from PySimpleGUI.PySimpleGUI import ProgressBar
@@ -251,7 +252,10 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
                 game_data.append(playtime)
                 game_data.append(percentage)
                 window.Element('_DATA_').Update(game_data)
+<<<<<<< HEAD
             threading.Thread(target=sshpi.gamedisplay, args=(game_name[14:], uname, 1)).start()
+=======
+>>>>>>> f72c575f83dc5f9b9959197ea50c4da490f245f2
             threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
         if response3 == 400:                                # Response code check (negatief)
             window.Element('_DATA_').Update('')
@@ -291,29 +295,22 @@ def game_id(name):                      # App ID met playtime opzoeken
             achievements(app_id, playtime)
 
 # def genre_achievements():
-#     appid_lst = []
-#     dictdict = {}
-#     tempdict = {}
-#     gen_lst = []
-#     steam_json = open('FINAL MAP\steam.json', 'r')  
-#     steam_list = json.loads(steam_json.read())
-#     genre = open('FINAL MAP\popular_genres.txt', 'r+') 
-#     game_json = open('Tom\gamesTom.json', 'r')
-#     game_list = json.loads(game_json.read())
-#     for y in game_list['response']['games']:
-#         if y['playtime_forever'] > 0:
-#             appid_lst.append(y['appid'])
-#         for x in steam_list:
-#             if y['name'] == x['name']:
+    # appid_lst = []
+    # dictdict = {}
+    # tempdict = {}
+    # gen_lst = []
+    # steam_json = open('FINAL MAP\steam.json', 'r')  
+    # steam_list = json.loads(steam_json.read())
+    # genre = open('FINAL MAP\popular_genres.txt', 'r+') 
+    # game_json = open('Tom\gamesTom.json', 'r')
+    # game_list = json.loads(game_json.read())
+    # for g in genre:
+    #     gen_lst.append(g)
+    # for x in steam_list:
+    #     for y in game_list:
+    #         if x['name'] == y['name']:
                 
-    
-#     for x in appid_lst:
-#         URL = URL3(x, steam_id)
-#         response5 = urlopen(URL)
-#         achievments = json.loads(response5.read())
-#         for i in achievments['playerstats']['achievements']:
-#             print(i)
-#     print(tempdict)
+
 
 #--------Grafieken Functies--------#
 def graph_values(game_list):            #grafiek 1e tab
