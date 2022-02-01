@@ -14,7 +14,7 @@ import requests
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.pyplot import Figure
-# import sshpi
+import sshpi
 
 #-------------------------------------------------PRE-VALUES-------------------------------------------------#
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
@@ -94,9 +94,9 @@ def URL4(appid):                            # Alle achievements opvragen
 #--------Data Functies--------#
 def Tags(game_list):                # Tags van de gebruiker uitzoeken
     global tagsdict
-    steam_json = open('FINAL MAP\steam.json', 'r')            # steam json lijst
+    steam_json = open('steam.json', 'r')            # steam json lijst
     steam_list = json.loads(steam_json.read())
-    genre = open('FINAL MAP\popular_genres.txt', 'r+')        # lijst met genre/tags
+    genre = open('popular_genres.txt', 'r+')        # lijst met genre/tags
     appidlst = []
     tagsdict = {}
     y=0
@@ -124,7 +124,7 @@ def Tags(game_list):                # Tags van de gebruiker uitzoeken
                             else:
                                 tagsdict[tag] = 1               # tag toevoegen aan dictionary en een waarde van 1 geven
                                 genre_list.append(tag)               # tag toevoegen aan genre_list
-                                with open('C:/Users/tomno/Documents/GitHub/steam/Tom/popular_genres.txt', 'a') as add_genre:
+                                with open('popular_genres.txt', 'a') as add_genre:
                                     add_genre.write(f'\n{tag}')               # tag toevoegen aan alle bekende tags/genres
     tagslst = []
     for key, val in tagsdict.items():
@@ -168,7 +168,7 @@ def userID(username):         # User info krijgen uit de steam API
     global steam_id
     if username.isdecimal():    # kan nu ook volledige steamid invullen (voor brendan enzo)
         steam_id = username
-        return gen_data()
+        game_info()
     else:
         URL = URL1(username)
         response1 = urlopen(URL)
@@ -251,7 +251,8 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
                 game_data.append(playtime)
                 game_data.append(percentage)
                 window.Element('_DATA_').Update(game_data)
-            #threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
+            threading.Thread(target=sshpi.gamedisplay, args=(game_name[14:], uname, 1)).start()
+            threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
         if response3 == 400:                                # Response code check (negatief)
             window.Element('_DATA_').Update('')
             NA = "Not Available"
@@ -260,6 +261,7 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
             game_data.append(playtime)
             game_data.append(NA)
             window.Element('_DATA_').Update(game_data)
+            threading.Thread(target=sshpi.gamedisplay, args=(game_name[14:], uname, 0)).start()
     except KeyError:                                        # Als er geen Achievements zijn
         window.Element('_DATA_').Update('')
         NA = "Not Available"
@@ -268,6 +270,8 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
         game_data.append(playtime)
         game_data.append(NA)
         window.Element('_DATA_').Update(game_data)
+        threading.Thread(target=sshpi.gamedisplay, args=(game_name[14:], uname, 0)).start()
+
 
 def game_id(name):                      # App ID met playtime opzoeken
     global game_name
@@ -358,9 +362,9 @@ def graph_genre(game_library):            #grafiek 2e tab
     return fig
 
 def graph_genre_time(game_list):            #grafiek 3e tab
-    steam_json = open('FINAL MAP\steam.json', 'r')
+    steam_json = open('steam.json', 'r')
     steam_list = json.loads(steam_json.read())
-    genre = open('FINAL MAP\popular_genres.txt', 'r+')
+    genre = open('popular_genres.txt', 'r+')
     genre_dict = {}
     genre_dict.clear()
     time_list= []
@@ -476,6 +480,8 @@ def draw(canvas, figure):       # van de grafiek een bruikbaar figuur maken
 
 #-------------------------------------------------value activaties-------------------------------------------------#
 
+global uname
+
 while True:
     event, values = window.Read()
     last_search = ""
@@ -484,6 +490,7 @@ while True:
         break
     if values['_USER_'].strip() != '' and ' ' not in values['_USER_'].strip():                      # User opzoeken
         username= values['_USER_']
+        uname = username
         game_data = userID(username)
     if values['_INPUT_'] != '':                     # Live search in library
         search = values['_INPUT_']

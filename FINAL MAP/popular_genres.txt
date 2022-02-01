@@ -652,3 +652,6 @@ Puzzle-Platformer
 Dystopian 
 Base-Building
 Base-Building
+Rogue-lite
+Philisophical
+Philisophical

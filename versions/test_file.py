@@ -1,12 +1,8 @@
-from msilib.schema import Error
-import threading
 import PySimpleGUI as sg
 import json
 from urllib.request import urlopen
-from PySimpleGUI.PySimpleGUI import ProgressBar
 import requests
 import math
-import sshpi
 
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
 game_list = []
