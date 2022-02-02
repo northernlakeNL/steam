@@ -14,6 +14,7 @@ import requests
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.pyplot import Figure
+import time
 # import sshpi
 
 #-------------------------------------------------PRE-VALUES-------------------------------------------------#
@@ -46,8 +47,8 @@ game_data_column = [                                        # Alle game data van
 
 #-------------------------------------------------TABS-------------------------------------------------#
 
-tab1 = [[sg.Canvas(size=(1250,600), k='_TIME_GRAPH_')]]               # Verschillende tabs voor de unieke data
-tab2 = [[sg.Canvas(size=(1250,600), k='_GEN_GRAPH_')]] # GENERAL is een placeholder
+tab1 = [[sg.Canvas(size=(1250,600), k='_TIME_GRAPH_')]]                 # Verschillende tabs voor de unieke data
+tab2 = [[sg.Canvas(size=(1250,600), k='_GEN_GRAPH_')]]
 tab3 = [[sg.Canvas(size=(1250,600), k='_Time_GEN_')]]
 tab5 = [[sg.Canvas(size=(1250,600), k='_CSGO_')]]
 
@@ -65,7 +66,6 @@ layout = [                                            # volgorde van de layout v
              sg.Frame(layout= game_data_column, title='', border_width=0, vertical_alignment='top'),],
             [sg.TabGroup(layout= tab_group_layout, enable_events=True,)]
             ]
-
 window = sg.Window("Victis-Victis Add-On", layout, size=(1380, 960), element_justification='center', resizable=True, finalize=True)
 window.Maximize()
 window.finalize()
@@ -107,12 +107,13 @@ def append():
     y = recently_played()
     z = friendlst()
     u = playersumaries()
-
+    user_data_lst.clear()
     user_data_lst.append(f'Steam persona name:              {u[0]}')
+    user_data_lst.append(f'User Since:                             {u[2]}')
     user_data_lst.append(f'Country code:                          {u[1]}')
     user_data_lst.append(f'How many friends on steam:     {z}')
     user_data_lst.append(f'Hours played last 2 weeks:       {y}')
-    user_data_lst.append(f'vacbans:                                 {x}')
+    user_data_lst.append(f'vacbans:                                  {x}')
 
     window.Element('_GENERAL_').update(user_data_lst)
 
@@ -120,8 +121,8 @@ def userbanned():
     userbanned_json = urlopen(URL8())
     userbanned = json.loads(userbanned_json.read())
     for x in userbanned['players']:
-        print(f'GameBans: {x["NumberOfVACBans"]}')
-    return x["NumberOfVACBans"]
+        VAC = x["NumberOfVACBans"]
+    return VAC
 
 def recently_played():
     recently_played_json =  urlopen(URL7())
@@ -132,7 +133,6 @@ def recently_played():
             game_per_2_weeks = x['playtime_2weeks']
             totaltime = game_per_2_weeks + totaltime
     uren = round(totaltime/60)
-    print(f'Hours played last 2 weeks: {uren}')
     return uren
     
 def friendlst():
@@ -142,7 +142,6 @@ def friendlst():
     for x in friend['friendslist']['friends']:
         if x['relationship'] == 'friend':
             friends = friends + 1
-    print(f'How many friends on steam: {friends}')
     return friends
 
 def playersumaries():
@@ -151,19 +150,13 @@ def playersumaries():
     playersumary = json.loads(playersumary_json.read())
     for x in playersumary['response']['players']:
         steam_player_name = x['personaname']
-        if 'loccountrycode' in x:
-            land = x['loccountrycode']
-        if 'avatar' in x:
-            url = x['avatarfull']
-    # response = requests.get(url, stream=True)
-    # response.raw.decode_content = True
-    # img_box = sg.Image(data=response.raw.read())
-    # window.Element('_image_').update(img_box)
-    print(f'url avatar: {url}')
-    print(f'Steam persona name: {steam_player_name}')
-    print(f'Land:{land}')
+        land = x['loccountrycode']
+        url = x['avatarfull']
+        seconds = x['timecreated']
+        date = time.gmtime(seconds)
     lst.append(steam_player_name)
     lst.append(land)
+    lst.append(f'{date[2]}/{date[1]}/{date[0]}')
     return lst
 
 def Tags(game_list):                # Tags van de gebruiker uitzoeken
@@ -217,7 +210,7 @@ def Tags(game_list):                # Tags van de gebruiker uitzoeken
     tagslst.sort()                      # lijst sorteren van groot naar klein
     return tagslst
 
-def time(game_library):             # play time bepalen per game
+def time_func(game_library):             # play time bepalen per game
     most_played = []
     time_list = []
     for game in game_library["response"]["games"]:
@@ -360,38 +353,13 @@ def game_id(name):                      # App ID met playtime opzoeken
                 playtime = f'playtime:     {game["playtime_forever"]}m'
             achievements(app_id, playtime)
 
-# def genre_achievements():
-#     appid_lst = []
-#     dictdict = {}
-#     tempdict = {}
-#     gen_lst = []
-#     steam_json = open('FINAL MAP\steam.json', 'r')  
-#     steam_list = json.loads(steam_json.read())
-#     genre = open('FINAL MAP\popular_genres.txt', 'r+') 
-#     game_json = open('Tom\gamesTom.json', 'r')
-#     game_list = json.loads(game_json.read())
-#     for y in game_list['response']['games']:
-#         if y['playtime_forever'] > 0:
-#             appid_lst.append(y['appid'])
-#         for x in steam_list:
-#             if y['name'] == x['name']:
-                
-    
-#     for x in appid_lst:
-#         URL = URL3(x, steam_id)
-#         response5 = urlopen(URL)
-#         achievments = json.loads(response5.read())
-#         for i in achievments['playerstats']['achievements']:
-#             print(i)
-#     print(tempdict)
-
 #--------Grafieken Functies--------#
 def graph_values(game_list):            #grafiek 1e tab
     time_list = []
     x = 0
     x_axis = ['']                                           #lst van de games
     y_axis = [0]                                            #lst van de uren
-    play_stat = time(game_list)
+    play_stat = time_func(game_list)
     for x in play_stat:
         new_x = x.split(';')
         x_axis.append(new_x[0])
@@ -484,7 +452,7 @@ def graph_genre_time(game_list):            #grafiek 3e tab
     for i, v in enumerate(y_axis):
         if i > 0:                                           # als de waarde groter is dan 0 tekst toevoegen
             plt.text(v+0.1, i + 0, str(f'  {str(round(int(v), 0))}'), color='black')
-    plt.title("Mosted played Genres"), plt.xlabel("hours"), plt.ylabel("Genre")      # labels voor de grafiek maken
+    plt.title("Most played Genres"), plt.xlabel("hours"), plt.ylabel("Genre")      # labels voor de grafiek maken
     plt.ylim(ymin=0)
     plt.legend()
     fig = plt.gcf()     # een afbeelding maken van de grafiek
@@ -553,34 +521,32 @@ def draw(canvas, figure):       # van de grafiek een bruikbaar figuur maken
 while True:
     event, values = window.Read()
     last_search = ""
-    last_list = []
+    search_list = []
     if event is None or event == 'Exit':            # Afsluiten van het programma zonder Errors
         break
     if values['_USER_'].strip() != '' and ' ' not in values['_USER_'].strip():                      # User opzoeken
         username= values['_USER_']
         game_data = userID(username)
+        append()
     if values['_INPUT_'] != '':                     # Live search in library
         search = values['_INPUT_']
-        if search.startswith(last_search):
-            last_list = [x for x in game_list if last_search in x]
-        else:
-            last_list = [x for x in game_list if last_search in x]
-        last_search = search
-        window.Element('_LIST_').update(last_list)
-    if event == '_LIST_':                           # Library in de GUI verwerken
+        for i in game_list:
+            if search in i:
+                search_list.append(i)
+        window.Element('_LIST_').update(search_list)
+    if event == '_LIST_':                           # Specifieke Game data in de GUI verwerken
         app_name = values['_LIST_']
         game_name = str(app_name[0])
         game_id(game_name)
         window.Element('_DATA_').Update(game_data)
-    if event == '_SEARCH_':
-        append()
+    if event == '_SEARCH_':                         # Grafieken in het scherm weergeven
+        window.TKCanvas.delete("all")
         fig1 = graph_values(game_library)
         draw(window['_TIME_GRAPH_'].TKCanvas, fig1)
         fig2 = graph_genre(game_library)
         draw(window['_GEN_GRAPH_'].TKCanvas, fig2)
         fig3 = graph_genre_time(game_library)
         draw(window['_Time_GEN_'].TKCanvas, fig3)
-        # fig4 = genre_achievements()
-        fig5 = csgo()
-        draw(window['_CSGO_'].TKCanvas, fig5)
+        fig4 = csgo()
+        draw(window['_CSGO_'].TKCanvas, fig4)
 window.close()
