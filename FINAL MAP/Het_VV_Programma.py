@@ -1,21 +1,13 @@
-
 #-------------------------------------------------IMPORTS-------------------------------------------------#
-from nturl2path import url2pathname
 import threading
-from turtle import xcor
 import PySimpleGUI as sg
 import json
 from urllib.request import urlopen
-from PySimpleGUI.PySimpleGUI import ProgressBar
-import matplotlib
-from matplotlib.figure import Figure
-import numpy as np
 import requests
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
-from matplotlib.pyplot import Figure
 import time
-# import sshpi
+import sshpi
 
 #-------------------------------------------------PRE-VALUES-------------------------------------------------#
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
@@ -161,9 +153,9 @@ def playersumaries():                               # verkrijgt de landcode van 
 
 def Tags(game_list):                # Tags van de gebruiker uitzoeken
     global tagsdict
-    steam_json = open('FINAL MAP\steam.json', 'r')            # steam json lijst
+    steam_json = open('steam.json', 'r')            # steam json lijst
     steam_list = json.loads(steam_json.read())
-    genre = open('FINAL MAP\popular_genres.txt', 'r+')        # lijst met genre/tags
+    genre = open('popular_genres.txt', 'r+')        # lijst met genre/tags
     appidlst = []
     tagsdict = {}
     y=0
@@ -318,7 +310,9 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
                 game_data.append(playtime)
                 game_data.append(percentage)
                 window.Element('_DATA_').Update(game_data)
-            #threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
+                window.Element('_DATA_').Update(game_data)
+            threading.Thread(target=sshpi.gamedisplay, args=(game_name[14:], uname, 1)).start()
+            threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
         if response3 == 400:                                # Response code check (negatief)
             window.Element('_DATA_').Update('')
             NA = "Not Available"
@@ -327,6 +321,7 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
             game_data.append(playtime)
             game_data.append(NA)
             window.Element('_DATA_').Update(game_data)
+            threading.Thread(target=sshpi.gamedisplay, args=(game_name[14:], uname, 0)).start()            
     except KeyError:                                        # Als er geen Achievements zijn
         window.Element('_DATA_').Update('')
         NA = "Not Available"
@@ -335,7 +330,7 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
         game_data.append(playtime)
         game_data.append(NA)
         window.Element('_DATA_').Update(game_data)
-
+        threading.Thread(target=sshpi.gamedisplay, args=(game_name[14:], uname, 0)).start()
 def game_id(name):                      # App ID met playtime opzoeken
     global game_name
     for game in game_library['response']['games']:
@@ -400,9 +395,9 @@ def graph_genre(game_library):            #grafiek 2e tab
     return fig
 
 def graph_genre_time(game_list):            #grafiek 3e tab
-    steam_json = open('FINAL MAP\steam.json', 'r')
+    steam_json = open('steam.json', 'r')
     steam_list = json.loads(steam_json.read())
-    genre = open('FINAL MAP\popular_genres.txt', 'r+')
+    genre = open('popular_genres.txt', 'r+')
     genre_dict = {}
     genre_dict.clear()
     time_list= []
@@ -518,6 +513,8 @@ def draw(canvas, figure):       # van de grafiek een bruikbaar figuur maken
 
 #-------------------------------------------------value activaties-------------------------------------------------#
 
+global uname
+
 while True:
     event, values = window.Read()
     last_search = ""
@@ -526,6 +523,7 @@ while True:
         break
     if values['_USER_'].strip() != '' and ' ' not in values['_USER_'].strip():                      # User opzoeken
         username= values['_USER_']
+        uname = username
         game_data = userID(username)
         append()
     if values['_INPUT_'] != '':                     # Live search in library
