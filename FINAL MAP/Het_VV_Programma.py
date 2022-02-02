@@ -153,9 +153,9 @@ def playersumaries():                               # verkrijgt de landcode van 
 
 def Tags(game_list):                # Tags van de gebruiker uitzoeken
     global tagsdict
-    steam_json = open('steam.json', 'r')            # steam json lijst
+    steam_json = open('FINAL MAP\steam.json', 'r')            # steam json lijst
     steam_list = json.loads(steam_json.read())
-    genre = open('popular_genres.txt', 'r+')        # lijst met genre/tags
+    genre = open('FINAL MAP\popular_genres.txt', 'r+')        # lijst met genre/tags
     appidlst = []
     tagsdict = {}
     y=0
@@ -395,9 +395,9 @@ def graph_genre(game_library):            #grafiek 2e tab
     return fig
 
 def graph_genre_time(game_list):            #grafiek 3e tab
-    steam_json = open('steam.json', 'r')
+    steam_json = open('FINAL MAP\steam.json', 'r')
     steam_list = json.loads(steam_json.read())
-    genre = open('popular_genres.txt', 'r+')
+    genre = open('FINAL MAP\popular_genres.txt', 'r+')
     genre_dict = {}
     genre_dict.clear()
     time_list= []
