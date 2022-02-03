@@ -4,7 +4,6 @@ from nturl2path import url2pathname
 import threading
 from turtle import xcor
 import PySimpleGUI as sg
-import PySimpleGUIQt as sgq
 import json
 from urllib.request import urlopen
 from PySimpleGUI.PySimpleGUI import ProgressBar
@@ -15,7 +14,10 @@ import requests
 from matplotlib import pyplot as plt
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 from matplotlib.pyplot import Figure
-import sshpi
+# import sshpi
+
+file_types = [("JPEG (*.jpg)", "*.jpg"),
+              ("All files (*.*)", "*.*")]
 
 #-------------------------------------------------PRE-VALUES-------------------------------------------------#
 API_key = 'AF90EFF02499BB3CDDFFF28629DEA47B'
@@ -24,14 +26,14 @@ game_data = []
 tempo = []
 percentage = 0
 gen_list = []
-
+user_data_lst = []
 #-------------------------------------------------COLUMNS-------------------------------------------------#
 user_column = [                                             # De eerste Colom waar de gebruikersnaam kan worden ingevuld en de algemen data komt
     [(sg.Text('Username: ')),
      (sg.Input(size=(25,20), key='_USER_')),
      (sg.Button('Search', key='_SEARCH_'))
      ],
-    [sg.Listbox(values=gen_list, enable_events=True, size=(55,20), k='_GENERAL_')]
+    [sg.Listbox(values=user_data_lst, enable_events=True, size=(55,10), k='_GENERAL_')]
     ]
 
 file_list_column = [                                        # De gebruikers bibliotheek weergeven met een zoek functie
@@ -69,6 +71,7 @@ layout = [                                            # volgorde van de layout v
             [sg.TabGroup(layout= tab_group_layout, enable_events=True,)]
             ]
 
+
 window = sg.Window("Victis-Victis Add-On", layout, size=(1380, 960), element_justification='center', resizable=True, finalize=True)
 window.Maximize()
 window.finalize()
@@ -90,14 +93,90 @@ def URL3(appid, steam_id):                  # User stats van een game opvragen
 def URL4(appid):                            # Alle achievements opvragen
     URL    =   f'http://api.steampowered.com/ISteamUserStats/GetGlobalAchievementPercentagesForApp/v0002/?gameid={appid}&format=json'
     return URL
-
+def URL5():                                 # Friendlist
+    URL    = f' http://api.steampowered.com/ISteamUser/GetFriendList/v0001/?key={API_key}&steamid={steam_id}&relationship=friend'
+    return URL
+def URL6():                                 # playersummaries
+    URL    = f'https://api.steampowered.com/ISteamUser/GetPlayerSummaries/v0002/?key={API_key}&steamids={steam_id}'
+    return URL
+def URL7():
+    URL    = f'http://api.steampowered.com/IPlayerService/GetOwnedGames/v0001/?key={API_key}&steamid={steam_id}&format=json'
+    return URL
+def URL8():
+    URL    = f'https://api.steampowered.com/ISteamUser/GetPlayerBans/v1/?key={API_key}&steamids={steam_id}'
+    return URL 
 
 #--------Data Functies--------#
+def append():
+    x = userbanned()
+    y = recently_played()
+    z = friendlst()
+    u = playersumaries()
+
+    user_data_lst.append(f'Steam persona name:              {u[0]}')
+    user_data_lst.append(f'Country code:                          {u[1]}')
+    user_data_lst.append(f'How many friends on steam:     {z}')
+    user_data_lst.append(f'Hours played last 2 weeks:       {y}')
+    user_data_lst.append(f'vacbans:                                 {x}')
+
+    window.Element('_GENERAL_').update(user_data_lst)
+
+def userbanned():
+    userbanned_json = urlopen(URL8())
+    userbanned = json.loads(userbanned_json.read())
+    for x in userbanned['players']:
+        print(f'GameBans: {x["NumberOfVACBans"]}')
+    return x["NumberOfVACBans"]
+
+def recently_played():
+    recently_played_json =  urlopen(URL7())
+    recently_played = json.loads(recently_played_json.read())
+    totaltime = 0
+    for x in recently_played['response']['games']:
+        if 'playtime_2weeks' in x:
+            game_per_2_weeks = x['playtime_2weeks']
+            totaltime = game_per_2_weeks + totaltime
+    uren = round(totaltime/60)
+    print(f'Hours played last 2 weeks: {uren}')
+    return uren
+    
+def friendlst():
+    friend_json = urlopen(URL5())
+    friend = json.loads(friend_json.read())
+    friends = 0
+    for x in friend['friendslist']['friends']:
+        if x['relationship'] == 'friend':
+            friends = friends + 1
+    print(f'How many friends on steam: {friends}')
+    return friends
+
+def playersumaries():
+    lst = []
+    playersumary_json = urlopen(URL6())
+    playersumary = json.loads(playersumary_json.read())
+    for x in playersumary['response']['players']:
+        steam_player_name = x['personaname']
+        if 'loccountrycode' in x:
+            land = x['loccountrycode']
+        if 'avatar' in x:
+            url = x['avatarfull']
+    # response = requests.get(url, stream=True)
+    # response.raw.decode_content = True
+    # img_box = sg.Image(data=response.raw.read())
+    # window.Element('_image_').update(img_box)
+    print(f'url avatar: {url}')
+    print(f'Steam persona name: {steam_player_name}')
+    print(f'Land:{land}')
+    lst.append(steam_player_name)
+    lst.append(land)
+    return lst
+
+
 def Tags(game_list):                # Tags van de gebruiker uitzoeken
     global tagsdict
-    steam_json = open('steam.json', 'r')            # steam json lijst
+    steam_json = open('FINAL MAP\steam.json', 'r')            # steam json lijst
     steam_list = json.loads(steam_json.read())
-    genre = open('popular_genres.txt', 'r+')        # lijst met genre/tags
+    genre = open('FINAL MAP\popular_genres.txt', 'r+')        # lijst met genre/tags
     appidlst = []
     tagsdict = {}
     y=0
@@ -125,7 +204,7 @@ def Tags(game_list):                # Tags van de gebruiker uitzoeken
                             else:
                                 tagsdict[tag] = 1               # tag toevoegen aan dictionary en een waarde van 1 geven
                                 genre_list.append(tag)               # tag toevoegen aan genre_list
-                                with open('popular_genres.txt', 'a') as add_genre:
+                                with open('C:/Users/tomno/Documents/GitHub/steam/Tom/popular_genres.txt', 'a') as add_genre:
                                     add_genre.write(f'\n{tag}')               # tag toevoegen aan alle bekende tags/genres
     tagslst = []
     for key, val in tagsdict.items():
@@ -169,7 +248,7 @@ def userID(username):         # User info krijgen uit de steam API
     global steam_id
     if username.isdecimal():    # kan nu ook volledige steamid invullen (voor brendan enzo)
         steam_id = username
-        game_info()
+        return gen_data()
     else:
         URL = URL1(username)
         response1 = urlopen(URL)
@@ -252,8 +331,7 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
                 game_data.append(playtime)
                 game_data.append(percentage)
                 window.Element('_DATA_').Update(game_data)
-            threading.Thread(target=sshpi.gamedisplay, args=(game_name[14:], uname, 1)).start()
-            threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
+            #threading.Thread(target=sshpi.ledbalk, args=(int(progress*100),)).start()
         if response3 == 400:                                # Response code check (negatief)
             window.Element('_DATA_').Update('')
             NA = "Not Available"
@@ -262,7 +340,6 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
             game_data.append(playtime)
             game_data.append(NA)
             window.Element('_DATA_').Update(game_data)
-            threading.Thread(target=sshpi.gamedisplay, args=(game_name[14:], uname, 0)).start()
     except KeyError:                                        # Als er geen Achievements zijn
         window.Element('_DATA_').Update('')
         NA = "Not Available"
@@ -271,8 +348,6 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
         game_data.append(playtime)
         game_data.append(NA)
         window.Element('_DATA_').Update(game_data)
-        threading.Thread(target=sshpi.gamedisplay, args=(game_name[14:], uname, 0)).start()
-
 
 def game_id(name):                      # App ID met playtime opzoeken
     global game_name
@@ -292,22 +367,29 @@ def game_id(name):                      # App ID met playtime opzoeken
             achievements(app_id, playtime)
 
 # def genre_achievements():
-    # appid_lst = []
-    # dictdict = {}
-    # tempdict = {}
-    # gen_lst = []
-    # steam_json = open('FINAL MAP\steam.json', 'r')  
-    # steam_list = json.loads(steam_json.read())
-    # genre = open('FINAL MAP\popular_genres.txt', 'r+') 
-    # game_json = open('Tom\gamesTom.json', 'r')
-    # game_list = json.loads(game_json.read())
-    # for g in genre:
-    #     gen_lst.append(g)
-    # for x in steam_list:
-    #     for y in game_list:
-    #         if x['name'] == y['name']:
+#     appid_lst = []
+#     dictdict = {}
+#     tempdict = {}
+#     gen_lst = []
+#     steam_json = open('FINAL MAP\steam.json', 'r')  
+#     steam_list = json.loads(steam_json.read())
+#     genre = open('FINAL MAP\popular_genres.txt', 'r+') 
+#     game_json = open('Tom\gamesTom.json', 'r')
+#     game_list = json.loads(game_json.read())
+#     for y in game_list['response']['games']:
+#         if y['playtime_forever'] > 0:
+#             appid_lst.append(y['appid'])
+#         for x in steam_list:
+#             if y['name'] == x['name']:
                 
-
+    
+#     for x in appid_lst:
+#         URL = URL3(x, steam_id)
+#         response5 = urlopen(URL)
+#         achievments = json.loads(response5.read())
+#         for i in achievments['playerstats']['achievements']:
+#             print(i)
+#     print(tempdict)
 
 #--------Grafieken Functies--------#
 def graph_values(game_list):            #grafiek 1e tab
@@ -356,9 +438,9 @@ def graph_genre(game_library):            #grafiek 2e tab
     return fig
 
 def graph_genre_time(game_list):            #grafiek 3e tab
-    steam_json = open('steam.json', 'r')
+    steam_json = open('FINAL MAP\steam.json', 'r')
     steam_list = json.loads(steam_json.read())
-    genre = open('popular_genres.txt', 'r+')
+    genre = open('FINAL MAP\popular_genres.txt', 'r+')
     genre_dict = {}
     genre_dict.clear()
     time_list= []
@@ -474,32 +556,22 @@ def draw(canvas, figure):       # van de grafiek een bruikbaar figuur maken
 
 #-------------------------------------------------value activaties-------------------------------------------------#
 
-global uname
-
 while True:
     event, values = window.Read()
     last_search = ""
+    last_list = []
     if event is None or event == 'Exit':            # Afsluiten van het programma zonder Errors
         break
     if values['_USER_'].strip() != '' and ' ' not in values['_USER_'].strip():                      # User opzoeken
         username= values['_USER_']
-        uname = username
         game_data = userID(username)
     if values['_INPUT_'] != '':                     # Live search in library
-        last_list = []
-        low = ''
-        high = len()
         search = values['_INPUT_']
-        while low <= high:
-            mid = (low + high) //2
-            if search <= lst[mid]
-
-        # search = values['_INPUT_']
-        # if search.startswith(last_search):
-        #     last_list = [x for x in game_list if last_search in x]
-        # else:
-        #     last_list = [x for x in game_list if last_search in x]
-        # last_search = search
+        if search.startswith(last_search):
+            last_list = [x for x in game_list if last_search in x]
+        else:
+            last_list = [x for x in game_list if last_search in x]
+        last_search = search
         window.Element('_LIST_').update(last_list)
     if event == '_LIST_':                           # Library in de GUI verwerken
         app_name = values['_LIST_']
@@ -507,6 +579,7 @@ while True:
         game_id(game_name)
         window.Element('_DATA_').Update(game_data)
     if event == '_SEARCH_':
+        append()
         fig1 = graph_values(game_library)
         draw(window['_TIME_GRAPH_'].TKCanvas, fig1)
         fig2 = graph_genre(game_library)
@@ -516,4 +589,9 @@ while True:
         # fig4 = genre_achievements()
         fig5 = csgo()
         draw(window['_CSGO_'].TKCanvas, fig5)
+        # fig6 = friendlst()
+        # fig7 = playersumaries()
+        # fig8 = recently_played()
+        # fig9 = userbanned()
 window.close()
+# window_background.close()

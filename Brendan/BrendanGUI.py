@@ -34,6 +34,8 @@ def genres():
 
 # ----------------------------------------------------------------- Grafieken van steamdata (matplotlib) ------------------------------------------------
 
+
+
 def graph_values():
     time_list = []
     x = 0
@@ -188,6 +190,7 @@ def achievements(appid, playtime):      # Behaalde achievement percentage van de
     achieved = 0
     to_achieve = 0
     progress = 0
+    print(URL3)
     r = requests.get(URL3)
     response3 = r.status_code
     try:

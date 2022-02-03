@@ -22,7 +22,11 @@ def gamedisplay(game, account, achievements=0):  # game is game naam, account is
         with Connection('dnsmies.ooguy.com', user='pi', connect_kwargs={"password": "Roots"}) as c:
             c.run(f'python3 /home/pi/hd44780/game.py -g "{game}" -a {account} -c {achievements}')
     except TimeoutError:
+<<<<<<< HEAD
         "lol"
 
 
 
+=======
+        "lol"
+>>>>>>> d6c709a0178e68329f8fc0259ad9551ad0235baf
